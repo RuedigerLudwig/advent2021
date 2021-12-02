@@ -1,0 +1,14 @@
+{
+    "python.terminal.activateEnvInCurrentTerminal": true,
+    "python.analysis.diagnosticMode": "workspace",
+    "python.linting.flake8Enabled": true,
+    "python.analysis.typeCheckingMode": "strict",
+    "files.exclude": {
+        ".venv/": true,
+        "**/__pycache__/": true,
+        "**/.pytest_cache/": true
+    },
+    "python.testing.pytestArgs": [],
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestEnabled": true
+}
