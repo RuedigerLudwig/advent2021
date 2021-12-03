@@ -21,23 +21,23 @@ def part2(lines: list[str]) -> int:
 
 
 def convert(line: str) -> Number:
-    def digit(c: str) -> bool:
+    def as_bool(c: str) -> bool:
         match c:
             case "0": return False
             case "1": return True
             case _: raise Exception(f"Unknown digit: '{c}'")
 
-    return [digit(c) for c in line.strip()]
+    return [as_bool(c) for c in line.strip()]
 
 
 def count(numbers: list[Number]) -> list[int]:
-    def add(lst: list[int], ab: tuple[int, bool]) -> list[int]:
+    def add_digit(lst: list[int], ab: tuple[int, bool]) -> list[int]:
         a, b = ab
         return lst + [a + int(b)]
 
     def add_number(prev: list[int], number: Number) -> list[int]:
         combined = zip_longest(prev, number, fillvalue=0)
-        return reduce(add, combined, [])
+        return reduce(add_digit, combined, [])
 
     return reduce(add_number, numbers, [])
 
@@ -46,6 +46,10 @@ def calc_gamma(numbers: list[Number]) -> Number:
     ones = count(numbers)
     mean_val = len(numbers) / 2
     return [c >= mean_val for c in ones]
+
+
+def calc_epsilon(numbers: list[Number]) -> Number:
+    return invers(calc_gamma(numbers))
 
 
 def invers(number: Number) -> Number:
@@ -62,13 +66,14 @@ def to_number(number: Number) -> int:
 
 
 def filter(numbers: list[Number], func: Callable[[list[Number]], Number]) -> Number:
-    for pos in range(len(numbers[0])):
+    def _filter(numbers: list[Number], pos: int) -> Number:
         crit = func(numbers)[pos]
-        numbers = [num for num in numbers if num[pos] == crit]
-        if len(numbers) == 1:
-            return numbers[0]
+        next_numbers = [num for num in numbers if num[pos] == crit]
+        if len(next_numbers) == 1:
+            return next_numbers[0]
+        return _filter(next_numbers, pos + 1)
 
-    raise Exception("Did not find a solitair Number")
+    return _filter(numbers, 0)
 
 
 def filter_oxygen(numbers: list[list[bool]]) -> list[bool]:
@@ -76,4 +81,4 @@ def filter_oxygen(numbers: list[list[bool]]) -> list[bool]:
 
 
 def filter_co2(numbers: list[list[bool]]) -> list[bool]:
-    return filter(numbers, lambda n: invers(calc_gamma(n)))
+    return filter(numbers, calc_epsilon)
