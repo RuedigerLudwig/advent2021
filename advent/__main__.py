@@ -1,10 +1,10 @@
 import sys
 
-from days import day01, day02, day03, template
+from days import day01, day02, day03, day04, template
 
 from advent.common import utils
 
-days: dict[int, template.Day] = {1: day01, 2: day02, 3: day03}
+days: dict[int, template.Day] = {1: day01, 2: day02, 3: day03, 4: day04}
 
 
 def output(day: int, part: int, result: template.ResultType | None) -> None:
@@ -15,17 +15,10 @@ def output(day: int, part: int, result: template.ResultType | None) -> None:
 
 
 def run(day_num: int, part: int) -> None:
-    day = days.get(day_num)
-    if day is None:
-        raise Exception(f"Unknown day {day_num}")
-
     data = utils.read_data(day_num, "input.txt")
-    if data is None:
-        raise Exception(f"Did not find input for day '{day_num}'")
-
     match part:
-        case 1: output(day_num, 1, day.part1(data))
-        case 2: output(day_num, 2, day.part2(data))
+        case 1: output(day_num, 1, days[day_num].part1(data))
+        case 2: output(day_num, 2, days[day_num].part2(data))
         case _: raise Exception(f"Unknown part {part}")
 
 

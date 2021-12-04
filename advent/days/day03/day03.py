@@ -31,15 +31,17 @@ def convert(line: str) -> Number:
 
 
 def count(numbers: list[Number]) -> list[int]:
+    empty: list[int] = []
+
     def add_digit(lst: list[int], ab: tuple[int, bool]) -> list[int]:
         a, b = ab
         return lst + [a + int(b)]
 
     def add_number(prev: list[int], number: Number) -> list[int]:
         combined = zip_longest(prev, number, fillvalue=0)
-        return reduce(add_digit, combined, [])
+        return reduce(add_digit, combined, empty)
 
-    return reduce(add_number, numbers, [])
+    return reduce(add_number, numbers, empty)
 
 
 def calc_gamma(numbers: list[Number]) -> Number:

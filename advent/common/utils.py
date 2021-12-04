@@ -4,17 +4,14 @@ from typing import Iterable, TypeVar, Callable
 T = TypeVar("T")
 
 
-def read_data(day: int, file: str) -> list[str] | None:
-    try:
-        with open(
-            Path.cwd()
-            / PurePath("advent/days/day{0:02}/data".format(day))
-            / PurePath(file),
-            "rt",
-        ) as f:
-            return f.readlines()
-    except FileNotFoundError:
-        return None
+def read_data(day: int, file: str) -> list[str]:
+    with open(
+        Path.cwd()
+        / PurePath("advent/days/day{0:02}/data".format(day))
+        / PurePath(file),
+        "rt",
+    ) as f:
+        return f.readlines()
 
 
 def some_filter(lst: Iterable[T | None]) -> Iterable[T]:

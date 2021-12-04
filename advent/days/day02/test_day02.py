@@ -1,4 +1,3 @@
-# type: ignore
 from advent.common import utils
 
 from . import day02
