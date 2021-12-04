@@ -1,6 +1,7 @@
 from advent.common import utils
 from . import day04
-from .board import Board, Game
+from .board import Board
+from .game import Game
 
 
 def test_read_board():

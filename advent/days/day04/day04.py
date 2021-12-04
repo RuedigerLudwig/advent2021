@@ -1,4 +1,4 @@
-from .board import Game
+from .game import Game
 
 
 def part1(lines: list[str]) -> int:
