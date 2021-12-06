@@ -1,10 +1,11 @@
 import sys
 
-from days import day01, day02, day03, day04, day05, template
+from days import day01, day02, day03, day04, day05, day06, template
 
 from advent.common import utils
 
-days: dict[int, template.Day] = {1: day01, 2: day02, 3: day03, 4: day04, 5: day05}
+days: dict[int, template.Day] = {1: day01, 2: day02,
+                                 3: day03, 4: day04, 5: day05, 6: day06}
 
 
 def output(day: int, part: int, result: template.ResultType | None) -> None:
