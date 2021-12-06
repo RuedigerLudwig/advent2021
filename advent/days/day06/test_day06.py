@@ -6,35 +6,35 @@ from . import day06
 def test_parsing():
     input = "3,4,3,1,2"
     expected = [0, 1, 1, 2, 1, 0, 0, 0, 0]
-    result = day06.convert(input)
+    result = day06.Swarm.from_str(input).swarm
     assert result == expected
 
 
 def test_day():
-    input = [0, 1, 1, 2, 1, 0, 0, 0, 0]
+    input = day06.Swarm([0, 1, 1, 2, 1, 0, 0, 0, 0])
     expected = [1, 1, 2, 1, 0, 0, 0, 0, 0]
-    result = day06.age(input)
+    result = input.age(1).swarm
     assert result == expected
 
 
 def test_day2():
-    input = [0, 1, 1, 2, 1, 0, 0, 0, 0]
+    input = day06.Swarm([0, 1, 1, 2, 1, 0, 0, 0, 0])
     expected = [1, 2, 1, 0, 0, 0, 1, 0, 1]
-    result = day06.age(input, 2)
+    result = input.age(2).swarm
     assert result == expected
 
 
 def test_day80():
-    input = [0, 1, 1, 2, 1, 0, 0, 0, 0]
+    input = day06.Swarm([0, 1, 1, 2, 1, 0, 0, 0, 0])
     expected = 5934
-    result = sum(day06.age(input, 80))
+    result = input.age(80).size()
     assert result == expected
 
 
 def test_day256():
-    input = [0, 1, 1, 2, 1, 0, 0, 0, 0]
+    input = day06.Swarm([0, 1, 1, 2, 1, 0, 0, 0, 0])
     expected = 26984457539
-    result = sum(day06.age(input, 256))
+    result = input.age(256).size()
     assert result == expected
 
 

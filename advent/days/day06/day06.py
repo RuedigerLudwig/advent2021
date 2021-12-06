@@ -1,25 +1,30 @@
 def part1(lines: list[str]) -> int:
-    swarm = convert(lines[0])
-    return sum(age(swarm, 80))
+    return Swarm.from_str(lines[0]).age(80).size()
 
 
 def part2(lines: list[str]) -> int:
-    swarm = convert(lines[0])
-    return sum(age(swarm, 256))
+    return Swarm.from_str(lines[0]).age(256).size()
 
 
-def convert(line: str) -> list[int]:
-    ages = [int(num) for num in line.split(",")]
-    swarm = [0] * 9
-    for age in range(9):
-        swarm[age] = len([f for f in ages if f == age])
-    return swarm
+class Swarm:
+    @staticmethod
+    def from_str(line: str) -> "Swarm":
+        ages = [int(num) for num in line.split(",")]
+        swarm = [0] * 9
+        for age in range(9):
+            swarm[age] = len([f for f in ages if f == age])
+        return Swarm(swarm)
 
+    def __init__(self, swarm: list[int]) -> None:
+        self.swarm = swarm
 
-def age(swarm: list[int], days: int = 1):
-    for _ in range(days):
-        aged = swarm[1:]
-        aged += [swarm[0]]
-        aged[6] += swarm[0]
-        swarm = aged
-    return swarm
+    def age(self, days: int = 1) -> "Swarm":
+        swarm = self.swarm
+        for _ in range(days):
+            swarm.append(swarm[0])
+            swarm[7] += swarm[0]
+            swarm = swarm[1:]
+        return Swarm(swarm)
+
+    def size(self) -> int:
+        return sum(self.swarm)
