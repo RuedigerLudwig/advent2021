@@ -10,6 +10,23 @@
             "request": "launch",
             "console": "integratedTerminal",
             "program": "advent"
+        },
+        {
+            "name": "Python: Advent with Args",
+            "type": "python",
+            "request": "launch",
+            "console": "integratedTerminal",
+            "program": "advent",
+            "args": [
+                "${input:dayToRun}"
+            ]
+        }
+    ],
+    "inputs": [
+        {
+            "id": "dayToRun",
+            "type": "promptString",
+            "description": "Which day should be run?"
         }
     ]
 }
