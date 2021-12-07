@@ -7,10 +7,13 @@ from advent.days.template import Day, ResultType
 
 
 def output(day: int, part: int, result: ResultType | None) -> None:
-    if result is None:
-        print("Day {0:02} Part {1}: (No Result)".format(day, part))
-    else:
-        print("Day {0:02} Part {1}: {2}".format(day, part, result))
+    match result:
+        case None:
+            print("Day {0:02} Part {1}: (No Result)".format(day, part))
+        case int(value):
+            print("Day {0:02} Part {1}: {2}".format(day, part, value))
+        case _:
+            print("Day {0:02} Part {1}: (Unknown result type)".format(day, part))
 
 
 def get_day(day_num: int) -> Day:
