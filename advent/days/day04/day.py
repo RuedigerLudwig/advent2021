@@ -1,5 +1,7 @@
 from .game import Game
 
+day_num = 4
+
 
 def part1(lines: list[str]) -> int:
     game = Game.from_str(lines)

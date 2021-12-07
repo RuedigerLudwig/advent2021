@@ -4,6 +4,8 @@ from typing import Callable
 
 Number = list[bool]
 
+day_num = 3
+
 
 def part1(lines: list[str]) -> int:
     numbers = [convert(line) for line in lines]

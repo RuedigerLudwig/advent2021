@@ -1,3 +1,6 @@
+day_num = 1
+
+
 def part1(lines: list[str]) -> int:
     return count_increase(convert(lines))
 
@@ -15,4 +18,4 @@ def count_increase(lst: list[int]) -> int:
 
 
 def make_blocks(lst: list[int], block_size: int) -> list[int]:
-    return [sum(lst[i : i + block_size]) for i in range(0, len(lst) - block_size + 1)]
+    return [sum(lst[i: i + block_size]) for i in range(0, len(lst) - block_size + 1)]

@@ -1,3 +1,3 @@
 # flake8: noqa
 # type: ignore
-from .day03 import part1, part2
+from .day import day_num, part1, part2

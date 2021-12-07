@@ -1,44 +1,49 @@
 import sys
-
-from days import day01, day02, day03, day04, day05, day06, day07, template
+from importlib import import_module
+from typing import cast
 
 from advent.common import utils
-
-days: dict[int, template.Day] = {1: day01, 2: day02,
-                                 3: day03, 4: day04, 5: day05, 6: day06, 7: day07}
+from advent.days.template import Day, ResultType
 
 
-def output(day: int, part: int, result: template.ResultType | None) -> None:
+def output(day: int, part: int, result: ResultType | None) -> None:
     if result is None:
         print("Day {0:02} Part {1}: (No Result)".format(day, part))
     else:
         print("Day {0:02} Part {1}: {2}".format(day, part, result))
 
 
-def run(day_num: int, part: int) -> None:
-    data = utils.read_data(day_num, "input.txt")
+def get_day(day_num: int) -> Day:
+    day = import_module("advent.days.day{0:02}".format(day_num))
+    return cast(Day, day)
+
+
+def run(day: Day, part: int) -> None:
+    data = utils.read_data(day.day_num, "input.txt")
     match part:
-        case 1: output(day_num, 1, days[day_num].part1(data))
-        case 2: output(day_num, 2, days[day_num].part2(data))
+        case 1: output(day.day_num, 1, day.part1(data))
+        case 2: output(day.day_num, 2, day.part2(data))
         case _: raise Exception(f"Unknown part {part}")
 
 
 def run_from_string(day_str: str) -> None:
     match day_str.split("/"):
         case [d]:
-            day = utils.safe_int(d)
-            if day is None:
+            day_num = utils.safe_int(d)
+            if day_num is None:
                 raise Exception(f"'{day_str}' is not a valid day info")
+            day = get_day(day_num)
 
             run(day, 1)
             run(day, 2)
 
         case [d, p]:
-            day = utils.safe_int(d)
+            day_num = utils.safe_int(d)
             part = utils.safe_int(p)
-            if day is None or part is None:
+            if day_num is None or part is None:
                 raise Exception(f"'{day_str}' is not a valid day info")
 
+            day = get_day(day_num)
             run(day, part)
 
         case _:
@@ -48,9 +53,13 @@ def run_from_string(day_str: str) -> None:
 def main() -> None:
     try:
         if len(sys.argv) == 1:
-            for day_num in range(1, len(days) + 1):
-                run(day_num, 1)
-                run(day_num, 2)
+            try:
+                for day_num in range(1, 25):
+                    day = get_day(day_num)
+                    run(day, 1)
+                    run(day, 2)
+            except ModuleNotFoundError:
+                pass
         else:
             for arg in sys.argv[1:]:
                 run_from_string(arg)

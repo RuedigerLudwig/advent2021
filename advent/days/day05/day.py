@@ -1,4 +1,6 @@
-from .line import Vent, Point
+from .line import Point, Vent
+
+day_num = 5
 
 
 def part1(lines: list[str]) -> int:

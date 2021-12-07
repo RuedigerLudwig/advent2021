@@ -1,6 +1,7 @@
 from advent.common import utils
+
+from . import day
 from .line import Point, Vent
-from . import day05
 
 
 def test_parse():
@@ -34,14 +35,14 @@ def test_straight_points():
 def test_intersections():
     input = [Vent.from_string("0,9 -> 5,9"), Vent.from_string("0,9 -> 2,9"), ]
     expected = 3
-    result = day05.count_intersections(input)
+    result = day.count_intersections(input)
     assert result == expected
 
 
 def test_part1():
     data = utils.read_data(5, "test01.txt")
     expected = 5
-    result = day05.part1(data)
+    result = day.part1(data)
     assert result == expected
 
 
@@ -55,5 +56,5 @@ def test_diagonal():
 def test_part2():
     data = utils.read_data(5, "test01.txt")
     expected = 12
-    result = day05.part2(data)
+    result = day.part2(data)
     assert result == expected

@@ -4,8 +4,10 @@ from typing import Iterable
 from advent.common import utils
 
 from .aim import Aim
-from .pos import Pos
 from .command import Command
+from .pos import Pos
+
+day_num = 2
 
 
 def part1(lines: list[str]) -> int:

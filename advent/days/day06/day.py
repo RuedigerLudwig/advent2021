@@ -1,3 +1,6 @@
+day_num = 6
+
+
 def part1(lines: list[str]) -> int:
     return Swarm.from_str(lines[0]).age(80).size()
 

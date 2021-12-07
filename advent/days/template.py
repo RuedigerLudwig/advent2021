@@ -4,6 +4,8 @@ ResultType = int
 
 
 class Day(typing.Protocol):
+    day_num: int
+
     @staticmethod
     def part1(lines: list[str]) -> ResultType | None:
         ...

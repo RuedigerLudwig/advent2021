@@ -1,5 +1,7 @@
 from typing import Callable
 
+day_num = 7
+
 
 def part1(lines: list[str]) -> int:
     return Crab.from_str(lines[0]).min_propcost()

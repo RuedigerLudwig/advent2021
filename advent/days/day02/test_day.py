@@ -1,9 +1,9 @@
 from advent.common import utils
 
-from . import day02
+from . import day
 from .aim import Aim
-from .pos import Pos
 from .command import Command
+from .pos import Pos
 
 
 def test_translate_forward():
@@ -38,7 +38,7 @@ def test_pos_adding():
 def test_part1():
     data = utils.read_data(2, "test01.txt")
     expected = 150
-    result = day02.part1(data)
+    result = day.part1(data)
     assert result == expected
 
 
@@ -61,5 +61,5 @@ def test_aim_add2():
 def test_part2():
     data = utils.read_data(2, "test01.txt")
     expected = 900
-    result = day02.part2(data)
+    result = day.part2(data)
     assert result == expected
