@@ -8,10 +8,10 @@ from advent.days.template import Day, ResultType
 
 def output(day: int, part: int, result: ResultType | None) -> None:
     match result:
-        case None:
-            print("Day {0:02} Part {1}: (No Result)".format(day, part))
         case int(value):
             print("Day {0:02} Part {1}: {2}".format(day, part, value))
+        case None:
+            print("Day {0:02} Part {1}: (No Result)".format(day, part))
         case _:
             print("Day {0:02} Part {1}: (Unknown result type)".format(day, part))
 
@@ -32,40 +32,36 @@ def run(day: Day, part: int) -> None:
 def run_from_string(day_str: str) -> None:
     match day_str.split("/"):
         case [d]:
-            day_num = utils.safe_int(d)
-            if day_num is None:
-                raise Exception(f"'{day_str}' is not a valid day info")
-            day = get_day(day_num)
+            day = get_day(int(d))
 
             run(day, 1)
             run(day, 2)
 
         case [d, p]:
-            day_num = utils.safe_int(d)
-            part = utils.safe_int(p)
-            if day_num is None or part is None:
-                raise Exception(f"'{day_str}' is not a valid day info")
+            day = get_day(int(d))
+            part = int(p)
 
-            day = get_day(day_num)
             run(day, part)
 
         case _:
-            raise Exception(f"'{day_str}' is not a valid day info")
+            raise Exception(f"'{day_str}' is not a valid day description")
 
 
 def main() -> None:
     try:
-        if len(sys.argv) == 1:
-            try:
-                for day_num in range(1, 25):
-                    day = get_day(day_num)
-                    run(day, 1)
-                    run(day, 2)
-            except ModuleNotFoundError:
-                pass
-        else:
-            for arg in sys.argv[1:]:
-                run_from_string(arg)
+        match len(sys.argv):
+            case 1:
+                try:
+                    for day_num in range(1, 25):
+                        day = get_day(day_num)
+                        run(day, 1)
+                        run(day, 2)
+                except ModuleNotFoundError:
+                    pass
+            case 2:
+                run_from_string(sys.argv[1])
+            case _:
+                raise Exception(f"Usage: python {sys.argv[0]} [day[/part]]")
     except Exception as e:
         print(e)
 
