@@ -1,2 +1,2 @@
-def test_day__():
+def test_day():
     pass
