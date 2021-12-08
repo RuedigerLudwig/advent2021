@@ -34,3 +34,8 @@ def safe_get(lst: list[T], pos: int, default: T) -> T:
         return lst[pos]
     except IndexError:
         return default
+
+
+def split(orig: set[T], pred: Callable[[T], bool]) -> tuple[set[T], set[T]]:
+    matches = {item for item in orig if pred(item)}
+    return matches, (orig - matches)

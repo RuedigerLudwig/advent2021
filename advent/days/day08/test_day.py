@@ -1,9 +1,9 @@
-from .day import Segment, part1, part2
+from .day import Analyzer, part1, part2
 from advent.common import utils
 
 
 def test_count_easy():
-    input = Segment.from_str(
+    input = Analyzer.from_str(
         "acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab | cdfeb fcadb cdfeb cdbaf")
     expected = 0
     result = input.count_easy()
@@ -11,7 +11,7 @@ def test_count_easy():
 
 
 def test_multi():
-    input = [Segment.from_str(line) for line in utils.read_data(8, "test01.txt")]
+    input = [Analyzer.from_str(line) for line in utils.read_data(8, "test01.txt")]
     expected = 26
     result = sum(out.count_easy() for out in input)
     assert result == expected
@@ -25,7 +25,7 @@ def test_part1():
 
 
 def test_get_output():
-    input = Segment.from_str(
+    input = Analyzer.from_str(
         "acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab | cdfeb fcadb cdfeb cdbaf")
     expected = 5353
     result = input.real_output()

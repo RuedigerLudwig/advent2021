@@ -1,17 +1,24 @@
+from typing import Callable
+
+from advent.common import utils
+
 day_num = 8
 
 
 def part1(lines: list[str]) -> int:
-    return sum(Segment.from_str(line).count_easy() for line in lines)
+    return sum(Analyzer.from_str(line).count_easy() for line in lines)
 
 
 def part2(lines: list[str]) -> int:
-    return sum(Segment.from_str(line).real_output() for line in lines)
+    return sum(Analyzer.from_str(line).real_output() for line in lines)
 
 
-class Segment:
+Digit = frozenset[str]
+
+
+class Analyzer:
     @staticmethod
-    def from_str(line: str) -> "Segment":
+    def from_str(line: str) -> "Analyzer":
         parts = line.strip().split("|")
         if len(parts) != 2:
             raise Exception("Need exactly two parts")
@@ -19,41 +26,45 @@ class Segment:
         if len(pattern) != 10:
             raise Exception("Unknown pattern")
         output = parts[1].split()
-        return Segment(pattern, output)
+        return Analyzer(pattern, output)
+
+    @staticmethod
+    def extract_single(bag: set[Digit], pred: Callable[[Digit], bool]) -> tuple[Digit, set[Digit]]:
+        item, new_bag = utils.split(bag, pred)
+        return item.pop(), new_bag
 
     def __init__(self, pattern: list[str], output: list[str]):
-        self.pattern = ["".join(sorted(p)) for p in pattern]
-        self.output = ["".join(sorted(o)) for o in output]
+        self.pattern = {Digit(p) for p in pattern}
+        self.output = [Digit(o) for o in output]
+
+    def get_easy(self) -> tuple[list[Digit], set[Digit]]:
+        one, bag = Analyzer.extract_single(self.pattern, lambda d: len(d) == 2)
+        four, bag = Analyzer.extract_single(bag, lambda d: len(d) == 4)
+        seven, bag = Analyzer.extract_single(bag, lambda d: len(d) == 3)
+        eight, bag = Analyzer.extract_single(bag, lambda d: len(d) == 7)
+        return [one, four, seven, eight], bag
 
     def count_easy(self) -> int:
-        return sum(1 for digit in self.output if len(digit) in [2, 3, 4, 7])
+        easy, _ = self.get_easy()
+        return sum(1 for digit in self.output if digit in easy)
 
-    def analyze(self) -> dict[str, int]:
-        def singleton(lst: list[str]) -> str:
-            if len(lst) != 1:
-                raise Exception("Did not get exactly one result")
-            return lst[0]
+    def analyze(self) -> dict[Digit, int]:
+        [one, four, seven, eight], bag = self.get_easy()
 
-        all_bars = "abcdefg"
+        six_bars_bag, bag = utils.split(bag, lambda d: len(d) == 6)
+        six, six_bars_bag = Analyzer.extract_single(six_bars_bag,
+                                                    lambda d: not d.issuperset(one))
 
-        one = singleton([p for p in self.pattern if len(p) == 2])
-        four = singleton([p for p in self.pattern if len(p) == 4])
-        seven = singleton([p for p in self.pattern if len(p) == 3])
-        eight = singleton([p for p in self.pattern if len(p) == 7])
+        upper_right_bar = one.difference(six)
+        horiz_bars = eight.intersection(*bag)
 
-        six_bars = [p for p in self.pattern if len(p) == 6]
-        six = singleton([p for p in six_bars if any(bar not in p for bar in one)])
-        upper_right_bar = singleton([b for b in all_bars if b not in six])
+        three, bag = Analyzer.extract_single(bag, lambda d: d.issuperset(one))
+        two, bag = Analyzer.extract_single(bag, lambda d: d.issuperset(upper_right_bar))
+        five = bag.pop()
 
-        five_bars = [p for p in self.pattern if len(p) == 5]
-        three = singleton([p for p in five_bars if all(bar in p for bar in one)])
-        two = singleton([p for p in five_bars if p != three and upper_right_bar in p])
-        five = singleton([p for p in five_bars if upper_right_bar not in p])
-
-        horiz_bars = [b for b in all_bars if all(b in p for p in five_bars)]
-        zero = singleton([p for p in six_bars if any(b not in p for b in horiz_bars)])
-        nine = singleton([p for p in six_bars if p
-                         != six and all(b in p for b in horiz_bars)])
+        nine, six_bars_bag = Analyzer.extract_single(six_bars_bag,
+                                                     lambda d: d.issuperset(horiz_bars))
+        zero = six_bars_bag.pop()
 
         return {zero: 0, one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9}
 
