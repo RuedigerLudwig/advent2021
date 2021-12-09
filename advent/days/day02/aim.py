@@ -10,9 +10,10 @@ class Aim:
         self.depth = depth
 
     def __eq__(self, other: object) -> bool:
-        if not type(other) is Aim:
+        if not isinstance(other, Aim):
             return False
         return self.horiz == other.horiz and self.aim == other.aim and self.depth == other.depth
 
     def move(self, other: Command) -> Aim:
-        return Aim(self.horiz + other.forward, self.aim + other.down, self.depth + other.forward * self.aim)
+        return Aim(self.horiz + other.forward, self.aim
+                   + other.down, self.depth + other.forward * self.aim)

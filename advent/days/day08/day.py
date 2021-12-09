@@ -15,6 +15,7 @@ def part2(lines: Iterator[str]) -> int:
     return sum(Analyzer.from_str(line).real_output() for line in lines)
 
 
+# Since the order of the segment do not matter, I use a set to represent each digit
 Digit = frozenset[str]
 
 
@@ -40,6 +41,7 @@ class Analyzer:
         self.output = [Digit(o) for o in output]
 
     def get_easy(self) -> tuple[list[Digit], set[Digit]]:
+        # The easy digits are defined by their lengths
         one, bag = Analyzer.extract_single(self.pattern, lambda d: len(d) == 2)
         four, bag = Analyzer.extract_single(bag, lambda d: len(d) == 4)
         seven, bag = Analyzer.extract_single(bag, lambda d: len(d) == 3)
@@ -53,22 +55,40 @@ class Analyzer:
     def analyze(self) -> dict[Digit, int]:
         [one, four, seven, eight], bag = self.get_easy()
 
-        six_bars_bag, bag = utils.split(bag, lambda d: len(d) == 6)
-        six, six_bars_bag = Analyzer.extract_single(six_bars_bag,
-                                                    lambda d: not d.issuperset(one))
+        # Extract all digits with six segmens (6, 9, 0)
+        six_segments_bag, bag = utils.split(bag, lambda d: len(d) == 6)
 
-        upper_right_bar = one.difference(six)
-        horiz_bars = eight.intersection(*bag)
+        # 6 is the only six segment digit that does not overlap completely with 1
+        six, six_segments_bag = Analyzer.extract_single(six_segments_bag,
+                                                        lambda d: not d >= one)
 
-        three, bag = Analyzer.extract_single(bag, lambda d: d.issuperset(one))
-        two, bag = Analyzer.extract_single(bag, lambda d: d.issuperset(upper_right_bar))
+        # Now we can see, which lettter reprsents the upper right segment
+        upper_right_segment = one.difference(six)
+
+        # In the bag are only 5 segment digits left (2, 3, 5), they all share the 3
+        # horizontal segments
+        horiz_segments = eight.intersection(*bag)
+
+        # The 3 is the only digit with 5 segments, that overlaps complete with 1
+        three, bag = Analyzer.extract_single(bag, lambda d: d >= one)
+
+        # Now the 2 can be found by getting the only digit left in the bag with an
+        # upper right segment
+        two, bag = Analyzer.extract_single(
+            bag, lambda d: d.issuperset(upper_right_segment))
+
+        # now 5 ist the only digit left in the bag
         five = bag.pop()
 
-        nine, six_bars_bag = Analyzer.extract_single(six_bars_bag,
-                                                     lambda d: d.issuperset(horiz_bars))
-        zero = six_bars_bag.pop()
+        # 9 is the only remaining 6 segment digit, that has all three horizontal segments
+        nine, six_segments_bag = Analyzer.extract_single(six_segments_bag,
+                                                         lambda d: d >= horiz_segments)
 
-        return {zero: 0, one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9}
+        # finally 0 is the only 6 segment digit left
+        zero = six_segments_bag.pop()
+
+        return {zero: 0, one: 1, two: 2, three: 3, four: 4,
+                five: 5, six: 6, seven: 7, eight: 8, nine: 9}
 
     def real_output(self) -> int:
         def value(lst: list[int], pos: int, factor: int, result: int) -> int:

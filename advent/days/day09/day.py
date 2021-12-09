@@ -32,7 +32,8 @@ class Cave:
     def from_str(lines: Iterator[str]) -> Cave:
         raw = [[int(p) for p in line] for line in lines]
 
-        # Remove all locations of height 9, that way we can later treat these and the cave walls the same
+        # Remove all locations of height 9, that way we can later treat these and
+        # the cave walls the same
         heightmap = {(x, y): height for line, y in zip(raw, count())
                      for height, x in zip(line, count()) if height < 9}
 
@@ -50,7 +51,9 @@ class Cave:
                 pass
 
     def find_lowpoints(self) -> set[Location]:
-        return {location for location, height in self.heightmap.items() if height < min(h for _, h in self.adjacent(location))}
+        return {location
+                for location, height in self.heightmap.items()
+                if height < min(h for _, h in self.adjacent(location))}
 
     def get_cave_risklevel(self) -> int:
         return sum(self.heightmap[location] + 1 for location in self.find_lowpoints())
@@ -68,4 +71,5 @@ class Cave:
         return len(visited)
 
     def get_sorted_basin_sizes(self) -> list[int]:
-        return sorted((self.get_basin_size(lowpoint) for lowpoint in self.find_lowpoints()), reverse=True)
+        return sorted((self.get_basin_size(lowpoint)
+                      for lowpoint in self.find_lowpoints()), reverse=True)

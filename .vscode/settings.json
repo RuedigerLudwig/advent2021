@@ -11,5 +11,12 @@
     },
     "python.testing.pytestArgs": [],
     "python.testing.unittestEnabled": false,
-    "python.testing.pytestEnabled": true
+    "python.testing.pytestEnabled": true,
+    "python.formatting.autopep8Args": [
+        "--max-line-length",
+        "100",
+        "--aggressive",
+        "--ignore",
+        "W503"
+    ]
 }

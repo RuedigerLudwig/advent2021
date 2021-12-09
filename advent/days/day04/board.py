@@ -25,7 +25,7 @@ class Board:
         self.bingo = False
 
     def __eq__(self, other: object) -> bool:
-        if type(other) is not Board:
+        if not isinstance(other, Board):
             return False
         return all(a == b for a, b in zip(self.numbers, other.numbers))
 

@@ -9,7 +9,7 @@ class Pos:
         self.depth = depth
 
     def __eq__(self, other: object) -> bool:
-        if not type(other) is Pos:
+        if not isinstance(other, Pos):
             return False
         return self.horiz == other.horiz and self.depth == other.depth
 

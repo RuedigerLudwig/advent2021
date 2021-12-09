@@ -16,7 +16,7 @@ class Point:
         self.y = y
 
     def __eq__(self, other: object) -> bool:
-        if type(other) is not Point:
+        if not isinstance(other, Point):
             return False
         return self.x == other.x and self.y == other.y
 
@@ -52,7 +52,7 @@ class Vent:
             self.end = p1
 
     def __eq__(self, other: object) -> bool:
-        if type(other) is not Vent:
+        if not isinstance(other, Vent):
             return False
         return self.start == other.start and self.end == other.end
 
