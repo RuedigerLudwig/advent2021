@@ -33,7 +33,7 @@ class Analyzer:
 
     @staticmethod
     def extract_single(bag: set[Digit], pred: Callable[[Digit], bool]) -> tuple[Digit, set[Digit]]:
-        item, new_bag = utils.split(bag, pred)
+        item, new_bag = utils.split_set(bag, pred)
         return item.pop(), new_bag
 
     def __init__(self, pattern: list[str], output: list[str]):
@@ -55,21 +55,21 @@ class Analyzer:
     def analyze(self) -> dict[Digit, int]:
         [one, four, seven, eight], bag = self.get_easy()
 
-        # Extract all digits with six segmens (6, 9, 0)
-        six_segments_bag, bag = utils.split(bag, lambda d: len(d) == 6)
+        # Extract all digits with six segments (6, 9, 0)
+        six_segments_bag, bag = utils.split_set(bag, lambda d: len(d) == 6)
 
         # 6 is the only six segment digit that does not overlap completely with 1
         six, six_segments_bag = Analyzer.extract_single(six_segments_bag,
                                                         lambda d: not d >= one)
 
-        # Now we can see, which lettter reprsents the upper right segment
+        # Now we can determine, which letter represents the upper right segment
         upper_right_segment = one.difference(six)
 
-        # In the bag are only 5 segment digits left (2, 3, 5), they all share the 3
-        # horizontal segments
+        # In the bag are only the 5 segment digits left (2, 3, 5), they all share the
+        # 3 horizontal segments
         horiz_segments = eight.intersection(*bag)
 
-        # The 3 is the only digit with 5 segments, that overlaps complete with 1
+        # The 3 is the only digit with 5 segments, that overlaps completely with 1
         three, bag = Analyzer.extract_single(bag, lambda d: d >= one)
 
         # Now the 2 can be found by getting the only digit left in the bag with an
@@ -80,7 +80,7 @@ class Analyzer:
         # now 5 ist the only digit left in the bag
         five = bag.pop()
 
-        # 9 is the only remaining 6 segment digit, that has all three horizontal segments
+        # 9 is the only remaining 6 segment digit, that has all 3 horizontal segments
         nine, six_segments_bag = Analyzer.extract_single(six_segments_bag,
                                                          lambda d: d >= horiz_segments)
 

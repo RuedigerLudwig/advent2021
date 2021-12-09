@@ -1,8 +1,6 @@
 from functools import reduce
 from typing import Iterable, Iterator
 
-from advent.common import utils
-
 from .aim import Aim
 from .command import Command
 from .pos import Pos
@@ -21,4 +19,4 @@ def part2(lines: Iterator[str]) -> int:
 
 
 def convert(lines: Iterator[str]) -> Iterable[Command]:
-    return utils.some_filter(Command.from_str(line) for line in lines)
+    return (Command.from_str(line) for line in lines)
