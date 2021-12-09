@@ -24,11 +24,13 @@ def add(fst: Location, snd: Location) -> Location:
 
 
 class Cave:
+    deltas: list[Location] = [(0, -1), (-1, 0), (1, 0), (0, 1)]
+
     @staticmethod
     def from_str(lines: list[str]) -> "Cave":
         raw = [[int(p) for p in line.strip()] for line in lines]
 
-        # I remove all locations of height 9, that way I can treat these and the cave walls equally
+        # Remove all locations of height 9, that way we can later treat these and the cave walls the same
         heightmap = {(x, y): height for line, y in zip(raw, count())
                      for height, x in zip(line, count()) if height < 9}
 
@@ -38,7 +40,7 @@ class Cave:
         self.heightmap = heightmap
 
     def adjacent(self, location: Location) -> Generator[tuple[Location, int], None, None]:
-        for delta in [(0, -1), (-1, 0), (1, 0), (0, 1)]:
+        for delta in Cave.deltas:
             next_location = add(location, delta)
             try:
                 yield next_location, self.heightmap[next_location]
@@ -46,7 +48,7 @@ class Cave:
                 pass
 
     def find_lowpoints(self) -> set[Location]:
-        return {location for location, height in self.heightmap.items() if height < min(h for (_, h) in self.adjacent(location))}
+        return {location for location, height in self.heightmap.items() if height < min(h for _, h in self.adjacent(location))}
 
     def get_cave_risklevel(self) -> int:
         return sum(self.heightmap[location] + 1 for location in self.find_lowpoints())
