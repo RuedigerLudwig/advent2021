@@ -1,16 +1,18 @@
+from __future__ import annotations
+
 from itertools import count
 from math import prod
-from typing import Generator
+from typing import Generator, Iterator
 
 day_num = 9
 
 
-def part1(lines: list[str]) -> int:
+def part1(lines: Iterator[str]) -> int:
     cave = Cave.from_str(lines)
     return cave.get_cave_risklevel()
 
 
-def part2(lines: list[str]) -> int:
+def part2(lines: Iterator[str]) -> int:
     cave = Cave.from_str(lines)
     all_basin = cave.get_sorted_basin_sizes()
     return prod(all_basin[:3])
@@ -27,8 +29,8 @@ class Cave:
     deltas: list[Location] = [(0, -1), (-1, 0), (1, 0), (0, 1)]
 
     @staticmethod
-    def from_str(lines: list[str]) -> "Cave":
-        raw = [[int(p) for p in line.strip()] for line in lines]
+    def from_str(lines: Iterator[str]) -> Cave:
+        raw = [[int(p) for p in line] for line in lines]
 
         # Remove all locations of height 9, that way we can later treat these and the cave walls the same
         heightmap = {(x, y): height for line, y in zip(raw, count())

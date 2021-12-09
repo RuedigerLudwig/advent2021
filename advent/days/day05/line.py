@@ -1,6 +1,9 @@
+from __future__ import annotations
+
+
 class Point:
     @staticmethod
-    def from_string(point: str) -> "Point":
+    def from_string(point: str) -> Point:
         parts = point.split(",")
         if len(parts) != 2:
             raise Exception(f"Illegal point {point}")
@@ -23,7 +26,7 @@ class Point:
     def __repr__(self) -> str:
         return f"{self.x},{self.y}"
 
-    def __lt__(self, other: "Point") -> bool:
+    def __lt__(self, other: Point) -> bool:
         if self.x == other.x:
             return self.y < other.y
         return self.x < other.x
@@ -31,7 +34,7 @@ class Point:
 
 class Vent:
     @staticmethod
-    def from_string(line: str) -> "Vent":
+    def from_string(line: str) -> Vent:
         parts = line.split("->")
         if len(parts) != 2:
             raise Exception(f"Illegal line {line}")

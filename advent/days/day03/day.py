@@ -1,13 +1,13 @@
 from functools import reduce
 from itertools import zip_longest
-from typing import Callable
+from typing import Callable, Iterator
 
 Number = list[bool]
 
 day_num = 3
 
 
-def part1(lines: list[str]) -> int:
+def part1(lines: Iterator[str]) -> int:
     numbers = [convert(line) for line in lines]
     gamma_list = calc_gamma(numbers)
     gamma = to_number(gamma_list)
@@ -15,7 +15,7 @@ def part1(lines: list[str]) -> int:
     return gamma * epsilon
 
 
-def part2(lines: list[str]) -> int:
+def part2(lines: Iterator[str]) -> int:
     numbers = [convert(line) for line in lines]
     oxygen = to_number(filter_oxygen(numbers))
     co2 = to_number(filter_co2(numbers))
@@ -27,9 +27,9 @@ def convert(line: str) -> Number:
         match c:
             case "0": return False
             case "1": return True
-            case _: raise Exception(f"Unknown digit: '{c}'")
+            case _: raise Exception(f"Unknown digit: {c}")
 
-    return [as_bool(c) for c in line.strip()]
+    return [as_bool(c) for c in line]
 
 
 def count(numbers: list[Number]) -> list[int]:

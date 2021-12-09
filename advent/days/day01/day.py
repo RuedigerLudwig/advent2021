@@ -1,15 +1,18 @@
+from typing import Iterator
+
+
 day_num = 1
 
 
-def part1(lines: list[str]) -> int:
+def part1(lines: Iterator[str]) -> int:
     return count_increase(convert(lines))
 
 
-def part2(lines: list[str]) -> int:
+def part2(lines: Iterator[str]) -> int:
     return count_increase(make_blocks(convert(lines), 3))
 
 
-def convert(lines: list[str]) -> list[int]:
+def convert(lines: Iterator[str]) -> list[int]:
     return [int(line) for line in lines]
 
 

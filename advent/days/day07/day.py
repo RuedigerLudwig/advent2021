@@ -1,19 +1,21 @@
-from typing import Callable
+from __future__ import annotations
+
+from typing import Callable, Iterator
 
 day_num = 7
 
 
-def part1(lines: list[str]) -> int:
-    return Crab.from_str(lines[0]).min_propcost()
+def part1(lines: Iterator[str]) -> int:
+    return Crab.from_str(next(lines)).min_propcost()
 
 
-def part2(lines: list[str]) -> int:
-    return Crab.from_str(lines[0]).min_geocost()
+def part2(lines: Iterator[str]) -> int:
+    return Crab.from_str(next(lines)).min_geocost()
 
 
 class Crab():
     @staticmethod
-    def from_str(line: str) -> "Crab":
+    def from_str(line: str) -> Crab:
         crabs = [int(num) for num in line.split(",")]
         return Crab(crabs)
 

@@ -1,12 +1,22 @@
+from __future__ import annotations
+
+from typing import Iterator
+
+
 class Board:
     @staticmethod
-    def from_str(lines: list[str]) -> "Board":
+    def from_str(lines: Iterator[str]) -> Board:
         numbers: list[list[int]] = []
-        for line in range(5):
-            number_line = [int(n) for n in lines[line].split()]
+        for _ in range(5):
+            number_line = [int(n) for n in next(lines).split()]
             if len(number_line) != 5:
                 raise Exception("Wrong amount of numbers in line")
             numbers.append(number_line)
+
+        try:
+            next(lines)
+        except StopIteration:
+            pass
 
         return Board(numbers)
 

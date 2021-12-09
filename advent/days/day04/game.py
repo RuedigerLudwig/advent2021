@@ -1,18 +1,23 @@
+from __future__ import annotations
+
+from typing import Iterator
+
 from .board import Board
 
 
 class Game:
     @staticmethod
-    def from_str(lines: list[str]) -> "Game":
-        def _read_boards(lines: list[str], boards: list[Board]) -> list[Board]:
+    def from_str(lines: Iterator[str]) -> Game:
+        def _read_boards(boards: list[Board]) -> list[Board]:
             try:
                 board = Board.from_str(lines)
             except Exception:
                 return boards
-            return _read_boards(lines[6:], boards + [board])
+            return _read_boards(boards + [board])
 
-        drawn = [int(n) for n in lines[0].split(",")]
-        boards = _read_boards(lines[2:], [])
+        drawn = [int(n) for n in next(lines).split(",")]
+        next(lines)
+        boards = _read_boards([])
 
         return Game(boards, drawn)
 

@@ -1,17 +1,22 @@
 from pathlib import Path, PurePath
-from typing import Iterable, TypeVar, Callable
+from typing import Iterable, Iterator, TypeVar, Callable
 
 T = TypeVar("T")
 
 
-def read_data(day: int, file: str) -> list[str]:
+def read_data(day: int, file: str) -> Iterator[str]:
     with open(
         Path.cwd()
         / PurePath("advent/days/day{0:02}/data".format(day))
         / PurePath(file),
         "rt",
     ) as f:
-        return f.readlines()
+        while True:
+            line = f.readline()
+            if line:
+                yield line if line[-1] != "\n" else line[:-1]
+            else:
+                return
 
 
 def some_filter(lst: Iterable[T | None]) -> Iterable[T]:

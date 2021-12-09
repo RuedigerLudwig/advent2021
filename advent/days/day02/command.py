@@ -1,14 +1,15 @@
+from __future__ import annotations
 
 
 class Command:
     @staticmethod
-    def from_str(command: str) -> "Command":
+    def from_str(command: str) -> Command:
         match command.split():
-            case ['forward', value]:
+            case ["forward", value]:
                 return Command(int(value), 0)
-            case ['up', value]:
+            case ["up", value]:
                 return Command(0, -int(value))
-            case ['down', value]:
+            case ["down", value]:
                 return Command(0, int(value))
             case _:
                 raise Exception(f"Unknown command {command}")

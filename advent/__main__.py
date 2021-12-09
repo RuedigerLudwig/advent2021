@@ -17,8 +17,8 @@ def output(day: int, part: int, result: ResultType | None) -> None:
 
 
 def get_day(day_num: int) -> Day:
-    day = import_module("advent.days.day{0:02}".format(day_num))
-    return cast(Day, day)
+    day_module = import_module("advent.days.day{0:02}".format(day_num))
+    return cast(Day, day_module.get_day())
 
 
 def run(day: Day, part: int) -> None:
@@ -44,27 +44,29 @@ def run_from_string(day_str: str) -> None:
             run(day, part)
 
         case _:
-            raise Exception(f"'{day_str}' is not a valid day description")
+            raise Exception(f"{day_str} is not a valid day description")
 
 
 def main() -> None:
-    try:
-        match len(sys.argv):
-            case 1:
-                try:
-                    for day_num in range(1, 25):
-                        day = get_day(day_num)
-                        run(day, 1)
-                        run(day, 2)
-                except ModuleNotFoundError:
-                    pass
-            case 2:
-                run_from_string(sys.argv[1])
-            case _:
-                raise Exception(f"Usage: python {sys.argv[0]} [day[/part]]")
-    except Exception as e:
-        print(e)
+    match sys.argv:
+        case [_]:
+            try:
+                for day_num in range(1, 25):
+                    day = get_day(day_num)
+                    run(day, 1)
+                    run(day, 2)
+            except ModuleNotFoundError:
+                pass
+
+        case [_, argument]:
+            run_from_string(argument)
+
+        case _:
+            raise Exception(f"Usage: python {sys.argv[0]} [day[/part]]")
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as e:
+        print(f"Error: {e}")

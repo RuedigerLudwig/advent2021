@@ -6,7 +6,7 @@ from . import day
 def test_convert():
     input = ["1", "2", "3"]
     expected = [1, 2, 3]
-    result = day.convert(input)
+    result = day.convert(iter(input))
     assert result == expected
 
 

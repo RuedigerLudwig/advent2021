@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from .command import Command
 
 
@@ -11,5 +13,5 @@ class Pos:
             return False
         return self.horiz == other.horiz and self.depth == other.depth
 
-    def move(self, other: Command) -> "Pos":
+    def move(self, other: Command) -> Pos:
         return Pos(self.horiz + other.forward, self.depth + other.down)

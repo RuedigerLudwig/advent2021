@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from .command import Command
 
 
@@ -12,5 +14,5 @@ class Aim:
             return False
         return self.horiz == other.horiz and self.aim == other.aim and self.depth == other.depth
 
-    def move(self, other: Command) -> "Aim":
+    def move(self, other: Command) -> Aim:
         return Aim(self.horiz + other.forward, self.aim + other.down, self.depth + other.forward * self.aim)

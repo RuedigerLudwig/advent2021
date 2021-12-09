@@ -33,9 +33,9 @@ def test_straight_points():
 
 
 def test_intersections():
-    input = [Vent.from_string("0,9 -> 5,9"), Vent.from_string("0,9 -> 2,9"), ]
+    input = [Vent.from_string("0,9 -> 5,9"), Vent.from_string("0,9 -> 2,9")]
     expected = 3
-    result = day.count_intersections(input)
+    result = day.count_intersections(iter(input))
     assert result == expected
 
 

@@ -1,15 +1,17 @@
-from typing import Callable
+from __future__ import annotations
+
+from typing import Callable, Iterator
 
 from advent.common import utils
 
 day_num = 8
 
 
-def part1(lines: list[str]) -> int:
+def part1(lines: Iterator[str]) -> int:
     return sum(Analyzer.from_str(line).count_easy() for line in lines)
 
 
-def part2(lines: list[str]) -> int:
+def part2(lines: Iterator[str]) -> int:
     return sum(Analyzer.from_str(line).real_output() for line in lines)
 
 
@@ -18,8 +20,8 @@ Digit = frozenset[str]
 
 class Analyzer:
     @staticmethod
-    def from_str(line: str) -> "Analyzer":
-        parts = line.strip().split("|")
+    def from_str(line: str) -> Analyzer:
+        parts = line.split("|")
         if len(parts) != 2:
             raise Exception("Need exactly two parts")
         pattern = parts[0].split()

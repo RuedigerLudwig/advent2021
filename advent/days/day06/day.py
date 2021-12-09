@@ -1,17 +1,21 @@
+from __future__ import annotations
+
+from typing import Iterator
+
 day_num = 6
 
 
-def part1(lines: list[str]) -> int:
-    return Swarm.from_str(lines[0]).age(80).size()
+def part1(lines: Iterator[str]) -> int:
+    return Swarm.from_str(next(lines)).age(80).size()
 
 
-def part2(lines: list[str]) -> int:
-    return Swarm.from_str(lines[0]).age(256).size()
+def part2(lines: Iterator[str]) -> int:
+    return Swarm.from_str(next(lines)).age(256).size()
 
 
 class Swarm:
     @staticmethod
-    def from_str(line: str) -> "Swarm":
+    def from_str(line: str) -> Swarm:
         ages = [int(num) for num in line.split(",")]
         swarm = [0] * 9
         for age in range(9):
@@ -21,7 +25,7 @@ class Swarm:
     def __init__(self, swarm: list[int]) -> None:
         self.swarm = swarm
 
-    def age(self, days: int = 1) -> "Swarm":
+    def age(self, days: int = 1) -> Swarm:
         swarm = self.swarm
         for _ in range(days):
             swarm.append(swarm[0])
