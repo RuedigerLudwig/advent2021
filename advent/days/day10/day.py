@@ -4,64 +4,82 @@ day_num = 10
 
 
 def part1(lines: Iterator[str]) -> int:
-    value = 0
+    score = 0
     for line in lines:
         try:
             check_chunks(line)
         except CorruptException as err:
-            value += err.value
+            score += err.score
         except IncompleteException:
             pass
-    return value
+    return score
 
 
 def part2(lines: Iterator[str]) -> int:
-    value: list[int] = []
+    scores: list[int] = []
     for line in lines:
         try:
             check_chunks(line)
         except CorruptException:
             pass
         except IncompleteException as err:
-            value.append(err.value)
-    return sorted(value)[len(value) >> 1]
+            scores.append(err.score)
+    return sorted(scores)[len(scores) >> 1]
 
 
 class CorruptException(Exception):
-    def __init__(self, value: int) -> None:
+    def __init__(self, score: int) -> None:
         super().__init__("Corrupt")
-        self.value = value
+        self.score = score
 
 
-class IncompleteException(Exception):
-    def __init__(self, value: int) -> None:
-        super().__init__("Incomplete")
-        self.value = value
+class EolException(Exception):
+    def __init__(self) -> None:
+        super().__init__("Eol")
+
+    @property
+    def score(self) -> int:
+        return 0
+
+
+class IncompleteException(EolException):
+    def __init__(self, score: int) -> None:
+        super().__init__()
+        self._score = score
+
+    @property
+    def score(self) -> int:
+        return self._score
 
 
 bracket = {"{": "}", "(": ")", "[": "]", "<": ">"}
-corrupt_value = {")": 3, "]": 57, "}": 1197, ">": 25137}
-incomplete_value = {"(": 1, "[": 2, "{": 3, "<": 4}
+corrupt_score = {")": 3, "]": 57, "}": 1197, ">": 25137}
+incomplete_score = {")": 1, "]": 2, "}": 3, ">": 4}
 
 
 def check_chunks(line: str) -> None:
     def check_sub(pos: int) -> int:
         while True:
-            # Trusting that there are no correct lines
             if pos >= len(line):
-                raise IncompleteException(0)
+                raise EolException()
 
-            start = line[pos]
-            if start not in bracket.keys():
+            expected = bracket.get(line[pos])
+            if expected is None:
                 return pos
 
             try:
                 pos = check_sub(pos + 1)
-            except IncompleteException as e:
-                raise IncompleteException(e.value * 5 + incomplete_value[start])
+            except EolException as e:
+                raise IncompleteException(e.score * 5 + incomplete_score[expected])
 
             end = line[pos]
-            if end != bracket[start]:
-                raise CorruptException(corrupt_value[end])
+            if end != expected:
+                raise CorruptException(corrupt_score[end])
             pos += 1
-    check_sub(0)
+
+    try:
+        check_sub(0)
+    except IncompleteException:
+        raise
+    except EolException:
+        pass

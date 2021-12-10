@@ -10,7 +10,7 @@ def test_corrupt_chunk():
     expected = 1197
     with pytest.raises(CorruptException) as err:
         check_chunks(input)
-    assert err.value.value == expected
+    assert err.value.score == expected
 
 
 def test_part1():
@@ -25,7 +25,7 @@ def test_incomplete_chunk():
     expected = 288957
     with pytest.raises(IncompleteException) as err:
         check_chunks(input)
-    assert err.value.value == expected
+    assert err.value.score == expected
 
 
 def test_part2():
