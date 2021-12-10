@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from statistics import mean, median
 from typing import Callable, Iterator
 
 day_num = 7
@@ -37,19 +38,12 @@ class Crab():
         else:
             return approach(start_pos, cost0, -1)
 
-    def median(self) -> int:
-        s = sorted(self.crabs)
-        return s[len(s) >> 1]
-
     @staticmethod
     def calc_propcost(crabs: list[int], pos: int) -> int:
         return sum(abs(p - pos) for p in crabs)
 
     def min_propcost(self) -> int:
-        return self.find_least_cost(self.median(), Crab.calc_propcost)
-
-    def average(self) -> int:
-        return int(sum(self.crabs) / len(self.crabs))
+        return self.find_least_cost(int(median(self.crabs)), Crab.calc_propcost)
 
     @staticmethod
     def calc_geocost(crabs: list[int], pos: int) -> int:
@@ -59,4 +53,4 @@ class Crab():
         return sum(gauss(abs(p - pos)) for p in crabs)
 
     def min_geocost(self) -> int:
-        return self.find_least_cost(self.average(), Crab.calc_geocost)
+        return self.find_least_cost(int(mean(self.crabs)), Crab.calc_geocost)

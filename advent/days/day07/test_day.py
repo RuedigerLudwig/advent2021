@@ -3,13 +3,6 @@ from advent.common import utils
 from . import day
 
 
-def test_mediam():
-    input = day.Crab([16, 1, 2, 0, 4, 2, 7, 1, 2, 14])
-    expected = 2
-    result = input.median()
-    assert result == expected
-
-
 def test_cost():
     input = day.Crab([16, 1, 2, 0, 4, 2, 7, 1, 2, 14])
     expected = 37

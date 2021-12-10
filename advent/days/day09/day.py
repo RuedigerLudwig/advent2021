@@ -30,7 +30,7 @@ class Cave:
 
     @staticmethod
     def from_str(lines: Iterator[str]) -> Cave:
-        raw = [[int(p) for p in line] for line in lines]
+        raw = ((int(p) for p in line) for line in lines)
 
         # Remove all locations of height 9, that way we can later treat these and
         # the cave walls the same

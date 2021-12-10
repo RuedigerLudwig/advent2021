@@ -15,15 +15,15 @@ class Game:
                 return boards
             return _read_boards(boards + [board])
 
-        drawn = [int(n) for n in next(lines).split(",")]
+        drawn = (int(n) for n in next(lines).split(","))
         next(lines)
         boards = _read_boards([])
 
         return Game(boards, drawn)
 
-    def __init__(self, boards: list[Board], drawn: list[int]) -> None:
+    def __init__(self, boards: list[Board], drawn: Iterator[int]) -> None:
         self.boards: list[Board] = boards
-        self.drawn: list[int] = drawn
+        self.drawn = drawn
 
     def count_boards(self) -> int:
         return len(self.boards)
