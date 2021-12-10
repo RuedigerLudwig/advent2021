@@ -1,4 +1,9 @@
-from typing import Iterator
+from __future__ import annotations
+
+from typing import Generator, Iterator
+
+from advent.common import CharProvider
+from advent.common.provider import EofException
 
 day_num = 10
 
@@ -7,7 +12,7 @@ def part1(lines: Iterator[str]) -> int:
     score = 0
     for line in lines:
         try:
-            check_chunks(line)
+            Chunk.from_str(line)
         except CorruptException as err:
             score += err.score
         except IncompleteException:
@@ -19,7 +24,7 @@ def part2(lines: Iterator[str]) -> int:
     scores: list[int] = []
     for line in lines:
         try:
-            check_chunks(line)
+            Chunk.from_str(line)
         except CorruptException:
             pass
         except IncompleteException as err:
@@ -29,57 +34,56 @@ def part2(lines: Iterator[str]) -> int:
 
 class CorruptException(Exception):
     def __init__(self, score: int) -> None:
-        super().__init__("Corrupt")
         self.score = score
 
 
-class EolException(Exception):
-    def __init__(self) -> None:
-        super().__init__("Eol")
-
-    @property
-    def score(self) -> int:
-        return 0
-
-
-class IncompleteException(EolException):
+class IncompleteException(Exception):
     def __init__(self, score: int) -> None:
-        super().__init__()
-        self._score = score
-
-    @property
-    def score(self) -> int:
-        return self._score
+        self.score = score
 
 
-bracket = {"{": "}", "(": ")", "[": "]", "<": ">"}
-corrupt_score = {")": 3, "]": 57, "}": 1197, ">": 25137}
-incomplete_score = {")": 1, "]": 2, "}": 3, ">": 4}
+class Chunk():
+    bracket = {"{": "}", "(": ")", "[": "]", "<": ">"}
+    corrupt_score = {")": 3, "]": 57, "}": 1197, ">": 25137}
+    incomplete_score = {"(": 1, "[": 2, "{": 3, "<": 4}
 
+    @staticmethod
+    def from_str(line: str) -> list[Chunk]:
+        return Chunk.chunk_list(CharProvider(line))
 
-def check_chunks(line: str) -> None:
-    def check_sub(pos: int) -> int:
-        while True:
-            if pos >= len(line):
-                raise EolException()
+    @staticmethod
+    def single_chunk(provider: CharProvider) -> Chunk:
+        start = provider.get()
+        try:
+            sub = Chunk.chunk_list(provider)
+            end = provider.get()
+            if end != Chunk.bracket[start]:
+                raise CorruptException(Chunk.corrupt_score[end])
+            return Chunk(start, sub)
+        except EofException:
+            raise IncompleteException(Chunk.incomplete_score[start]) from None
+        except IncompleteException as e:
+            raise IncompleteException(e.score * 5 + Chunk.incomplete_score[start]) from None
 
-            expected = bracket.get(line[pos])
-            if expected is None:
-                return pos
+    @staticmethod
+    def chunk_generator(provider: CharProvider) -> Generator[Chunk, None, None]:
+        while not provider.finished():
+            if provider.peek() not in Chunk.bracket.keys():
+                return None
+            yield Chunk.single_chunk(provider)
 
-            try:
-                pos = check_sub(pos + 1)
-            except EolException as e:
-                raise IncompleteException(e.score * 5 + incomplete_score[expected])
+    @staticmethod
+    def chunk_list(provider: CharProvider) -> list[Chunk]:
+        return list(Chunk.chunk_generator(provider))
 
-            end = line[pos]
-            if end != expected:
-                raise CorruptException(corrupt_score[end])
-            pos += 1
+    def __init__(self, start: str, sub: list[Chunk]):
+        self.start = start
+        self.sub = sub
 
-    try:
-        check_sub(0)
-    except IncompleteException:
-        raise
-    except EolException:
-        pass
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Chunk):
+            return False
+        return self.start == other.start and self.sub == other.sub
+
+    def __repr__(self) -> str:
+        return f"{self.start}{''.join(repr(s) for s in  self.sub)}{Chunk.bracket[self.start]}"

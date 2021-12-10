@@ -1,15 +1,21 @@
 import pytest
 from advent.common import utils
 
-from .day import (CorruptException, IncompleteException, check_chunks, part1,
-                  part2)
+from .day import Chunk, CorruptException, IncompleteException, part1, part2
+
+
+def test_correct_chunk():
+    input = "[{}()]"
+    expected = "[{}()]"
+    result = str(Chunk.from_str(input)[0])
+    assert result == expected
 
 
 def test_corrupt_chunk():
     input = "{([(<{}[<>[]}>{[]{[(<()>"
     expected = 1197
     with pytest.raises(CorruptException) as err:
-        check_chunks(input)
+        Chunk.from_str(input)
     assert err.value.score == expected
 
 
@@ -24,7 +30,7 @@ def test_incomplete_chunk():
     input = "[({(<(())[]>[[{[]{<()<>>"
     expected = 288957
     with pytest.raises(IncompleteException) as err:
-        check_chunks(input)
+        Chunk.from_str(input)
     assert err.value.score == expected
 
 
