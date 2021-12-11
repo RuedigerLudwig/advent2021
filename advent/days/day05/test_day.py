@@ -1,12 +1,12 @@
 from advent.common import utils
 
 from . import day
-from .line import Point, Vent
+from .vent import Vent
 
 
 def test_parse():
     input = "0,9 -> 5,9"
-    expected = Vent(Point(0, 9), Point(5, 9))
+    expected = Vent((0, 9), (5, 9))
     result = Vent.from_string(input)
     assert result == expected
 
@@ -27,7 +27,7 @@ def test_horizontal():
 
 def test_straight_points():
     input = Vent.from_string("2,2 -> 2,1")
-    expected = {Point(2, 1), Point(2, 2)}
+    expected = {(2, 1), (2, 2)}
     result = input.all_points()
     assert result == expected
 
@@ -48,7 +48,7 @@ def test_part1():
 
 def test_diagonal():
     input = Vent.from_string("9,7 -> 7,9")
-    expected = {Point(9, 7), Point(8, 8), Point(7, 9)}
+    expected = {(9, 7), (8, 8), (7, 9)}
     result = input.all_points()
     assert result == expected
 

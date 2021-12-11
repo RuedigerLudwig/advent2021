@@ -1,5 +1,5 @@
 from typing import Iterator
-from .line import Point, Vent
+from .vent import Point, Vent
 
 day_num = 5
 
