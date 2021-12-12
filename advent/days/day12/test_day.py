@@ -16,27 +16,6 @@ def test_day():
     assert result.system == expected
 
 
-def test_extend_start():
-    input = CaveSystem.from_str(utils.read_data(12, "test01.txt"))
-    expected = [["start", "A"], ["start", "b"]]
-    result = input.extend_path(["start"], CaveSystem.only_big_twice)
-    assert result == expected
-
-
-def test_extend_c():
-    input = CaveSystem.from_str(utils.read_data(12, "test01.txt"))
-    expected = [["start", "A", "c", "A"]]
-    result = input.extend_path(["start", "A", "c"], CaveSystem.only_big_twice)
-    assert result == expected
-
-
-def test_extend_3():
-    input = CaveSystem.from_str(utils.read_data(12, "test01.txt"))
-    expected = []
-    result = input.extend_path(["start", "b", "d"], CaveSystem.only_big_twice)
-    assert result == expected
-
-
 def test_all_paths():
     input = CaveSystem.from_str(utils.read_data(12, "test01.txt"))
     expected = 10
