@@ -19,7 +19,7 @@ def test_count():
              [True, True, True, True, False],
              [True, False, True, True, False]]
     expected = [2, 1, 3, 2, 0]
-    result = day.count(input)
+    result = day.count_ones(input)
     assert result == expected
 
 
@@ -40,7 +40,7 @@ def test_inverse():
 def test_to_number():
     input = [True, False, True, True, False]
     expected = 22
-    result = day.to_number(input)
+    result = day.to_int(input)
     assert result == expected
 
 
