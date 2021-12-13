@@ -1,6 +1,6 @@
 import typing
 
-ResultType = int
+ResultType = int | list[str]
 
 
 class Day(typing.Protocol):

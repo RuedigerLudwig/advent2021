@@ -10,6 +10,10 @@ def output(day: int, part: int, result: ResultType | None) -> None:
     match result:
         case int(value):
             print("Day {0:02} Part {1}: {2}".format(day, part, value))
+        case list(value):
+            print("Day {0:02} Part {1}: {2}".format(day, part, value[0]))
+            for line in value[1:]:
+                print(f"               {line}")
         case None:
             print("Day {0:02} Part {1}: (No Result)".format(day, part))
         case _:
