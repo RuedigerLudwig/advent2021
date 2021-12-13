@@ -6,30 +6,22 @@ Point = tuple[int, int]
 class Vent:
     @staticmethod
     def point_from_string(point: str) -> Point:
-        parts = point.split(",")
-        if len(parts) != 2:
-            raise Exception(f"Illegal point {point}")
-        x = int(parts[0].strip())
-        y = int(parts[1].strip())
-        return x, y
+        match point.split(","):
+            case [x, y]:
+                return int(x.strip()), int(y.strip())
+            case _:
+                raise Exception(f"Illegal point {point}")
 
     @staticmethod
     def from_string(line: str) -> Vent:
-        parts = line.split("->")
-        if len(parts) != 2:
-            raise Exception(f"Illegal line {line}")
-        p1 = Vent.point_from_string(parts[0])
-        p2 = Vent.point_from_string(parts[1])
-
-        return Vent(p1, p2)
+        match line.split("->"):
+            case [p1, p2]:
+                return Vent(Vent.point_from_string(p1), Vent.point_from_string(p2))
+            case _:
+                raise Exception(f"Illegal line {line}")
 
     def __init__(self, p1: Point, p2: Point) -> None:
-        if p1 < p2:
-            self.start = p1
-            self.end = p2
-        else:
-            self.start = p2
-            self.end = p1
+        self.start, self.end = (p1, p2) if p1 < p2 else (p2, p1)
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Vent):

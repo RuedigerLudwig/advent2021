@@ -27,10 +27,11 @@ class Board:
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Board):
             return False
-        return all(a == b for a, b in zip(self.numbers, other.numbers))
+        return (len(self.numbers) == len(other.numbers)
+                and all(a == b for a, b in zip(self.numbers, other.numbers)))
 
     def draw_number(self, number: int) -> None:
-        if number in self.numbers:
+        if number in self.numbers and not self.bingo:
             self.numbers = [n if n != number else None for n in self.numbers]
 
             self.bingo = any(

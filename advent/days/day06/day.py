@@ -19,7 +19,7 @@ class Swarm:
         ages = [int(num) for num in line.split(",")]
         swarm = [0] * 9
         for age in range(9):
-            swarm[age] = len([f for f in ages if f == age])
+            swarm[age] = sum(1 for f in ages if f == age)
         return Swarm(swarm)
 
     def __init__(self, swarm: list[int]) -> None:
