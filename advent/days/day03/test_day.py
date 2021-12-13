@@ -3,10 +3,6 @@ from advent.common import utils
 from . import day
 
 
-def test_day03():
-    pass
-
-
 def test_convert():
     input = "00100"
     expected = [False, False, True, False, False]
@@ -14,26 +10,10 @@ def test_convert():
     assert result == expected
 
 
-def test_count():
-    input = [[False, False, True, False, False],
-             [True, True, True, True, False],
-             [True, False, True, True, False]]
-    expected = [2, 1, 3, 2, 0]
-    result = day.count_ones(input)
-    assert result == expected
-
-
 def test_gamma():
     data = [day.convert(line) for line in utils.read_data(3, "test01.txt")]
     expected = [True, False, True, True, False]
     result = day.calc_gamma(data)
-    assert result == expected
-
-
-def test_inverse():
-    input = [True, False, True, True, False]
-    expected = [False, True, False, False, True]
-    result = day.invers(input)
     assert result == expected
 
 

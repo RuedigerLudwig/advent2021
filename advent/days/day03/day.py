@@ -1,6 +1,5 @@
-from functools import reduce
 from itertools import zip_longest
-from typing import Callable, Iterator, cast
+from typing import Callable, Iterator
 
 Number = list[bool]
 
@@ -9,9 +8,8 @@ day_num = 3
 
 def part1(lines: Iterator[str]) -> int:
     numbers = [convert(line) for line in lines]
-    gamma_list = calc_gamma(numbers)
-    gamma = to_int(gamma_list)
-    epsilon = to_int(invers(gamma_list))
+    gamma = to_int(calc_gamma(numbers))
+    epsilon = to_int(calc_epsilon(numbers))
     return gamma * epsilon
 
 
@@ -23,34 +21,25 @@ def part2(lines: Iterator[str]) -> int:
 
 
 def convert(line: str) -> Number:
-    def as_bool(c: str) -> bool:
+    def _as_bool(c: str) -> bool:
         match c:
             case "0": return False
             case "1": return True
             case _: raise Exception(f"Unknown digit: {c}")
 
-    return [as_bool(c) for c in line]
-
-
-def count_ones(numbers: list[Number]) -> list[int]:
-    def add_number(prev: list[int], number: Number) -> list[int]:
-        return [a + int(b) for a, b in zip_longest(prev, number, fillvalue=0)]
-
-    return reduce(add_number, numbers, cast(list[int], []))
+    return [_as_bool(c) for c in line]
 
 
 def calc_gamma(numbers: list[Number]) -> Number:
-    ones = count_ones(numbers)
-    expected_ones = len(numbers) / 2
-    return [c >= expected_ones for c in ones]
+    ones: list[int] = []
+    for number in numbers:
+        ones = [a + (1 if b else -1) for a, b in zip_longest(ones, number, fillvalue=0)]
+
+    return [count >= 0 for count in ones]
 
 
 def calc_epsilon(numbers: list[Number]) -> Number:
-    return invers(calc_gamma(numbers))
-
-
-def invers(number: Number) -> Number:
-    return [not n for n in number]
+    return [not digit for digit in calc_gamma(numbers)]
 
 
 def to_int(number: Number) -> int:
