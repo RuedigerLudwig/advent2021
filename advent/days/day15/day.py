@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import sys
 from queue import PriorityQueue
 from typing import Callable, Iterator
 
@@ -18,7 +19,7 @@ def part2(lines: Iterator[str]) -> int:
 
 # x, y
 Pos = tuple[int, int]
-# value,  last Position
+# value, last Position
 SubPath = tuple[int, Pos]
 
 
@@ -34,17 +35,19 @@ class Cave:
 
     def find_path(self, start: Pos, end: Pos,
                   adjacent: Callable[[Pos], Iterator[tuple[Pos, int]]]) -> int:
-        shortest_found: set[Pos] = {start}
+        shortest_path: dict[Pos, int] = {start: 0}
         queue: PriorityQueue[SubPath] = PriorityQueue()
         queue.put((0, start))
         while queue:
             path_risk, pos = queue.get()
+            if pos == end:
+                return path_risk
+
             for next_pos, risk in adjacent(pos):
-                if next_pos not in shortest_found:
-                    if next_pos == end:
-                        return path_risk + risk
-                    shortest_found.add(next_pos)
-                    queue.put((path_risk + risk, next_pos))
+                next_risk = path_risk + risk
+                if shortest_path.get(next_pos, sys.maxsize) > next_risk:
+                    shortest_path[next_pos] = next_risk
+                    queue.put((next_risk, next_pos))
         raise Exception("No path found")
 
     deltas: list[Pos] = [(0, -1), (-1, 0), (1, 0), (0, 1)]
