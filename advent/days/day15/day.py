@@ -1,8 +1,7 @@
 from __future__ import annotations
 
-from itertools import count
 from queue import PriorityQueue
-from typing import Callable, Generator, Iterator
+from typing import Callable, Iterator
 
 day_num = 15
 
@@ -17,7 +16,9 @@ def part2(lines: Iterator[str]) -> int:
     return cave.find_path2()
 
 
+# x, y
 Pos = tuple[int, int]
+# value,  last Position
 SubPath = tuple[int, Pos]
 
 
@@ -29,19 +30,16 @@ class Cave:
     def __init__(self, cave: list[list[int]]):
         self.height = len(cave)
         self.width = len(cave[0])
-        self.cave: dict[Pos, int] = {}
-        for line, y in zip(cave, count()):
-            for risk, x in zip(line, count()):
-                self.cave[(x, y)] = risk
+        self.cave = cave
 
-    def find_path(self, end: Pos, adjacent: Callable[[
-                  Cave, Pos], Iterator[tuple[Pos, int]]]) -> int:
-        shortest_found: set[Pos] = {(0, 0)}
+    def find_path(self, start: Pos, end: Pos,
+                  adjacent: Callable[[Pos], Iterator[tuple[Pos, int]]]) -> int:
+        shortest_found: set[Pos] = {start}
         queue: PriorityQueue[SubPath] = PriorityQueue()
-        queue.put((0, (0, 0)))
+        queue.put((0, start))
         while queue:
             path_risk, pos = queue.get()
-            for next_pos, risk in adjacent(self, pos):
+            for next_pos, risk in adjacent(pos):
                 if next_pos not in shortest_found:
                     if next_pos == end:
                         return path_risk + risk
@@ -51,27 +49,25 @@ class Cave:
 
     deltas: list[Pos] = [(0, -1), (-1, 0), (1, 0), (0, 1)]
 
-    def adjacent(self, pos: Pos) -> Generator[tuple[Pos, int], None, None]:
-        for delta in Cave.deltas:
-            next_pos = pos[0] + delta[0], pos[1] + delta[1]
-            try:
-                yield next_pos, self.cave[next_pos]
-            except KeyError:
-                pass
-
     def find_path1(self) -> int:
-        end = self.width - 1, self.height - 1
-        return self.find_path(end, Cave.adjacent)
+        def _adjacent(pos: Pos) -> Iterator[tuple[Pos, int]]:
+            for delta in Cave.deltas:
+                nx, ny = pos[0] + delta[0], pos[1] + delta[1]
+                if nx >= 0 and ny >= 0 and nx < self.width and ny < self.height:
+                    yield (nx, ny), self.cave[ny][nx]
 
-    def adjacent2(self, pos: Pos) -> Generator[tuple[Pos, int], None, None]:
-        for delta in Cave.deltas:
-            next_pos = pos[0] + delta[0], pos[1] + delta[1]
-            if next_pos[0] >= 0 and next_pos[1] >= 0:
-                px, py = next_pos[0] // self.width, next_pos[1] // self.width
-                if px < 5 and py < 5:
-                    coord = next_pos[0] % self.width, next_pos[1] % self.height
-                    yield next_pos, (self.cave[coord] + px + py - 1) % 9 + 1
+        end = self.width - 1, self.height - 1
+        return self.find_path((0, 0), end, _adjacent)
 
     def find_path2(self) -> int:
+        def _adjacent(pos: Pos) -> Iterator[tuple[Pos, int]]:
+            for delta in Cave.deltas:
+                nx, ny = pos[0] + delta[0], pos[1] + delta[1]
+                if nx >= 0 and ny >= 0:
+                    px, py = nx // self.width, ny // self.width
+                    if px < 5 and py < 5:
+                        ox, oy = nx % self.width, ny % self.height
+                        yield (nx, ny), (self.cave[oy][ox] + px + py - 1) % 9 + 1
+
         end = self.width * 5 - 1, self.height * 5 - 1
-        return self.find_path(end, Cave.adjacent2)
+        return self.find_path((0, 0), end, _adjacent)
