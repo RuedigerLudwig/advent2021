@@ -1,5 +1,5 @@
 from pathlib import Path, PurePath
-from typing import Callable, Iterator, TypeVar
+from typing import Callable, Generator, Iterator, ParamSpec, TypeVar
 
 T = TypeVar("T")
 
@@ -30,3 +30,17 @@ def split_set(full_set: set[T], predicate: Callable[[T], bool]) -> tuple[set[T],
     for item in full_set:
         (true_set if predicate(item) else false_set).add(item)
     return true_set, false_set
+
+
+P = ParamSpec("P")
+Y = TypeVar("Y")
+S = TypeVar("S")
+R = TypeVar("R")
+
+
+def coroutine(func: Callable[P, Generator[Y, S, R]]) -> Callable[P, Generator[Y, S, R]]:
+    def start(*args: P.args, **kwargs: P.kwargs) -> Generator[Y, S, R]:
+        cr = func(*args, **kwargs)
+        next(cr)
+        return cr
+    return start
