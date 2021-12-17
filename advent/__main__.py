@@ -1,6 +1,5 @@
 import sys
 from importlib import import_module
-from typing import cast
 
 from advent.common import utils
 from advent.days.template import Day, ResultType
@@ -21,8 +20,11 @@ def output(day: int, part: int, result: ResultType | None) -> None:
 
 
 def get_day(day_num: int) -> Day:
-    day_module = import_module("advent.days.day{0:02}".format(day_num))
-    return cast(Day, day_module.get_day())
+    day_module = import_module("advent.days.day{0:02}.day".format(day_num))
+    if isinstance(day_module, Day):
+        return day_module
+
+    raise Exception("Not a valid day")
 
 
 def run(day: Day, part: int) -> None:

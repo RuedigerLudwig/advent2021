@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Generator, Iterator
 
-from advent.common import CharProvider
+from advent.common.char_provider import CharProvider
 from advent.common.provider import EofException
 
 day_num = 10
