@@ -3,7 +3,6 @@ import typing
 ResultType = int | list[str]
 
 
-@typing.runtime_checkable
 class Day(typing.Protocol):
     day_num: int
 
@@ -14,3 +13,11 @@ class Day(typing.Protocol):
     @staticmethod
     def part2(lines: typing.Iterator[str]) -> ResultType | None:
         ...
+
+
+def is_day(object: typing.Any) -> typing.TypeGuard[Day]:
+    try:
+        return (isinstance(object.day_num, int)
+                and callable(object.part1) and callable(object.part2))
+    except AttributeError:
+        return False
