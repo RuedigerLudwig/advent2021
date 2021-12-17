@@ -17,10 +17,16 @@ def part2(lines: Iterator[str]) -> int:
     return probe.count_possible()
 
 
+Range = tuple[int, int]
+XStepRange = tuple[int, int | None]
+YStepRange = tuple[int, int]
+Pos = tuple[int, int]
+
+
 class Target:
     @staticmethod
     def from_str(line: str) -> Target:
-        def get_range(text: str) -> tuple[int, int]:
+        def get_range(text: str) -> Range:
             match text.split(".."):
                 case [start, end]:
                     return int(start.strip()), int(end.strip())
@@ -35,7 +41,7 @@ class Target:
             case _:
                 raise NotImplementedError
 
-    def __init__(self, range_x: tuple[int, int], range_y: tuple[int, int]) -> None:
+    def __init__(self, range_x: Range, range_y: Range) -> None:
         self.range_x = range_x
         self.range_y = range_y
 
@@ -44,18 +50,14 @@ class Target:
             return self.range_x == other.range_x and self.range_y == other.range_y
         raise NotImplementedError
 
-    def possible_x(self) -> Iterator[tuple[int, tuple[int, int | None]]]:
+    def possible_x(self) -> Iterator[tuple[int, XStepRange]]:
         for x_start in range(1, self.range_x[1] + 1):
             min_steps: int | None = None
-            steps = 0
-            x_pos = 0
-            x_vel = x_start
+            steps = 1
+            x_pos = x_start
+            x_vel = x_start - 1
             done = False
             while not done:
-                steps += 1
-                x_pos += x_vel
-                x_vel -= 1
-
                 if x_pos > self.range_x[1]:
                     if min_steps is not None:
                         yield x_start, (min_steps, steps - 1)
@@ -69,22 +71,22 @@ class Target:
                         yield x_start, (min_steps, None)
                     done = True
 
-    def possible_y(self) -> Iterator[tuple[int, tuple[int, int]]]:
+                steps += 1
+                x_pos += x_vel
+                x_vel -= 1
+
+    def possible_y(self) -> Iterator[tuple[int, YStepRange]]:
         for y_start in range(self.range_y[0], -self.range_y[0] + 1):
             if y_start <= 0:
-                steps = 0
-                y_vel = y_start
+                steps = 1
+                y_vel = y_start - 1
             else:
-                steps = y_start * 2 + 1
-                y_vel = -(y_start + 1)
+                steps = y_start * 2 + 2
+                y_vel = -y_start - 2
             min_steps = None
-            y_pos = 0
+            y_pos = y_vel + 1
             done = False
             while not done:
-                steps += 1
-                y_pos += y_vel
-                y_vel -= 1
-
                 if y_pos < self.range_y[0]:
                     if min_steps is not None:
                         yield y_start, (min_steps, steps - 1)
@@ -92,7 +94,11 @@ class Target:
                 elif y_pos <= self.range_y[1] and min_steps is None:
                     min_steps = steps
 
-    def get_possible(self) -> Iterator[tuple[int, int]]:
+                steps += 1
+                y_pos += y_vel
+                y_vel -= 1
+
+    def get_possible(self) -> Iterator[Pos]:
         posx = self.possible_x()
         posy = self.possible_y()
         for (x, (min_x, max_x)), (y, (min_y, max_y)) in product(posx, posy):
