@@ -24,9 +24,9 @@ class Vent:
         self.start, self.end = (p1, p2) if p1 < p2 else (p2, p1)
 
     def __eq__(self, other: object) -> bool:
-        if not isinstance(other, Vent):
-            return False
-        return self.start == other.start and self.end == other.end
+        if isinstance(other, Vent):
+            return self.start == other.start and self.end == other.end
+        raise NotImplementedError
 
     def __repr__(self) -> str:
         return f"{self.start} -> {self.end}"

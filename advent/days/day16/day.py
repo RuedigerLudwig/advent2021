@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import abc
-from itertools import zip_longest
 from math import prod
 from typing import Generator, Iterator
 
@@ -149,7 +148,11 @@ class OperatorPacket(Packet):
         return self.version + sum(packet.get_version_sum() for packet in self.packets)
 
     def __eq__(self, other: object) -> bool:
-        if isinstance(other, OperatorPacket):
-            return other.op == self.op and other.version == self.version and all(
-                s == o for s, o in zip_longest(self.packets, other.packets))
+        try:
+            if isinstance(other, OperatorPacket):
+                return other.op == self.op and other.version == self.version and all(
+                    s == o for s, o in zip(self.packets, other.packets, strict=True))
+        except ValueError:
+            return False
+
         raise NotImplementedError

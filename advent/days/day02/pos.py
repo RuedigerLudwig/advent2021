@@ -9,9 +9,9 @@ class Pos:
         self.depth = depth
 
     def __eq__(self, other: object) -> bool:
-        if not isinstance(other, Pos):
-            return False
-        return self.horiz == other.horiz and self.depth == other.depth
+        if isinstance(other, Pos):
+            return self.horiz == other.horiz and self.depth == other.depth
+        raise NotImplementedError
 
     def move(self, other: Command) -> Pos:
         return Pos(self.horiz + other.forward, self.depth + other.down)

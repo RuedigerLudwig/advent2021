@@ -25,10 +25,12 @@ class Board:
         self.bingo = False
 
     def __eq__(self, other: object) -> bool:
-        if not isinstance(other, Board):
+        try:
+            if isinstance(other, Board):
+                return all(a == b for a, b in zip(self.numbers, other.numbers, strict=True))
+        except ValueError:
             return False
-        return (len(self.numbers) == len(other.numbers)
-                and all(a == b for a, b in zip(self.numbers, other.numbers)))
+        raise NotImplementedError
 
     def draw_number(self, number: int) -> None:
         if number in self.numbers and not self.bingo:

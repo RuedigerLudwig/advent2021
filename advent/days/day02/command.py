@@ -19,6 +19,6 @@ class Command:
         self.down = down
 
     def __eq__(self, other: object) -> bool:
-        if not type(other) is Command:
-            return False
-        return self.forward == other.forward and self.down == other.down
+        if isinstance(other, Command):
+            return self.forward == other.forward and self.down == other.down
+        raise NotImplementedError

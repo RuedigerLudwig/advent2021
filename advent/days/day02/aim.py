@@ -10,9 +10,9 @@ class Aim:
         self.depth = depth
 
     def __eq__(self, other: object) -> bool:
-        if not isinstance(other, Aim):
-            return False
-        return self.horiz == other.horiz and self.aim == other.aim and self.depth == other.depth
+        if isinstance(other, Aim):
+            return self.horiz == other.horiz and self.aim == other.aim and self.depth == other.depth
+        raise NotImplementedError
 
     def move(self, other: Command) -> Aim:
         return Aim(self.horiz + other.forward, self.aim

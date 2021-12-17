@@ -81,9 +81,9 @@ class Chunk():
         self.sub = sub
 
     def __eq__(self, other: object) -> bool:
-        if not isinstance(other, Chunk):
-            return False
-        return self.start == other.start and self.sub == other.sub
+        if isinstance(other, Chunk):
+            return self.start == other.start and self.sub == other.sub
+        raise NotImplementedError
 
     def __repr__(self) -> str:
         return f"{self.start}{''.join(repr(s) for s in  self.sub)}{Chunk.bracket[self.start]}"
