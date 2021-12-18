@@ -25,45 +25,31 @@ def test_parse2():
     assert result == expected
 
 
-def test_max_level():
-    input = SnailNumber.from_str("[[[[[9,8],1],2],3],4]")
-    expected = 5
-    result = input.max_level()
-    assert result == expected
-
-
 def test_single_explode1():
     input = SnailNumber.from_str("[[[[[9,8],1],2],3],4]")
     expected = SnailNumber.from_str("[[[[0,9],2],3],4]")
-    result = input.single_explode()
+    result, _ = input.explode(0)
     assert result == expected
 
 
 def test_single_explode2():
     input = SnailNumber.from_str("[[3,[2,[1,[7,3]]]],[6,[5,[4,[3,2]]]]]")
     expected = SnailNumber.from_str("[[3,[2,[8,0]]],[9,[5,[4,[3,2]]]]]")
-    result = input.single_explode()
+    result, _ = input.explode(0)
     assert result == expected
 
 
 def test_single_explode3():
     input = SnailNumber.from_str("[[[[0,7],4],[7,[[8,4],9]]],[1,1]]")
     expected = SnailNumber.from_str("[[[[0,7],4],[15,[0,13]]],[1,1]]")
-    result = input.single_explode()
+    result, _ = input.explode(0)
     assert result == expected
 
 
 def test_split():
     input = SnailNumber.from_str("[[[[0,7],4],[15,[0,13]]],[1,1]]")
     expected = SnailNumber.from_str("[[[[0,7],4],[[7,8],[0,13]]],[1,1]]")
-    result = input.single_split()
-    assert result == expected
-
-
-def test_reduce():
-    input = SnailNumber.from_str("[[[[[4,3],4],4],[7,[[8,4],9]]],[1,1]]")
-    expected = SnailNumber.from_str("[[[[0,7],4],[[7,8],[6,0]]],[8,1]]")
-    result = input.reduce()
+    result, _ = input.split()
     assert result == expected
 
 
