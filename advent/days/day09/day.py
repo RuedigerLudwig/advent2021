@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from itertools import count
 from math import prod
 from typing import Generator, Iterator
 
@@ -34,8 +33,8 @@ class Cave:
 
         # Remove all locations of height 9, that way we can later treat these and
         # the cave walls the same
-        heightmap = {(x, y): height for line, y in zip(raw, count())
-                     for height, x in zip(line, count()) if height < 9}
+        heightmap = {(x, y): height for y, line in enumerate(raw)
+                     for x, height in enumerate(line) if height < 9}
 
         return Cave(heightmap)
 
