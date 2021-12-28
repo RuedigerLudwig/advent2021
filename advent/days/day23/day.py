@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import sys
 from dataclasses import dataclass, field
+from functools import cached_property, reduce
 from itertools import chain, islice, tee
 from queue import PriorityQueue
 from typing import Iterator
@@ -10,7 +11,7 @@ day_num = 23
 
 
 def part1(lines: Iterator[str]) -> int:
-    result = AmphipodHome.from_str(lines)
+    result = Layout.from_str(lines)
     return result.find_path()
 
 
@@ -20,289 +21,275 @@ def part2(orig: Iterator[str]) -> int:
         "  #D#C#B#A#",
         "  #D#B#A#C#"
     ], islice(end, 3, None))
-    result = AmphipodHome.from_str(lines)
+    result = Layout.from_str(lines)
     return result.find_path()
 
 
-Location = tuple[int, int]
+class Amphipod(int):
+    @staticmethod
+    def from_str(char: str) -> Amphipod:
+        return Amphipod("ABCD".find(char))
 
-H1: Location = 4, 0
-H2: Location = 4, 1
-H3: Location = 4, 2
-H4: Location = 4, 3
-H5: Location = 4, 4
-H6: Location = 4, 5
-H7: Location = 4, 6
-X1: Location = -1, 0
-X2: Location = -1, 1
-X3: Location = -1, 2
-X4: Location = -1, 3
-A1: Location = 0, 0
-B1: Location = 1, 0
-C1: Location = 2, 0
-D1: Location = 3, 0
-A2: Location = 0, 1
-B2: Location = 1, 1
-C2: Location = 2, 1
-D2: Location = 3, 1
+    def __str__(self) -> str:
+        return "ABCD"[self]
 
-A = 0
-B = 1
-C = 2
-D = 3
+    @property
+    def weight(self) -> int:
+        return 10 ** self
 
-neighborhood: dict[Location, list[Location]] = {
-    H1: [H2],
-    H2: [H1, X1],
-    X1: [H2, H3, A1],
-    H3: [X1, X2],
-    X2: [H3, H4, B1],
-    H4: [X2, X3],
-    X3: [H4, H5, C1],
-    H5: [X3, X4],
-    X4: [H5, H6, D1],
-    H6: [X4, H7],
-    H7: [H6],
-    A1: [X1],
-    B1: [X2],
-    C1: [X3],
-    D1: [X4],
-}
+    @staticmethod
+    def all() -> Iterator[Amphipod]:
+        for value in range(4):
+            yield Amphipod(value)
+
+
+class Hallway(int):
+    @property
+    def wing(self) -> Amphipod:
+        return Amphipod(4)
+
+    @property
+    def pos(self) -> int:
+        return self
+
+    def path_to_wing(self, wing: Amphipod) -> Iterator[tuple[Location, int]]:
+        if self < wing + 2:
+            for pos in range(self + 1, wing + 2):
+                yield Hallway(pos), 1 if pos == 1 else 2
+        else:
+            for pos in range(self - 1, wing + 1, -1):
+                yield Hallway(pos), 1 if pos == 5 else 2
+        yield Wing((wing, 0)), 2
+
+
+class Wing(tuple[Amphipod, int]):
+    @property
+    def wing(self) -> Amphipod:
+        return self[0]
+
+    @property
+    def pos(self) -> int:
+        return self[1]
+
+    def is_home(self, occupant: Amphipod | None) -> bool:
+        return occupant is not None and self[0] == occupant
+
+    def path_to_wing(self, wing: Amphipod) -> Iterator[tuple[Location, int]]:
+        if self[0] != wing:
+            if self[0] < wing:
+                for num in range(self[0] + 2, wing + 2):
+                    yield Hallway(num), 2
+            else:
+                for num in range(self[0] + 1, wing + 1, -1):
+                    yield Hallway(num), 2
+            yield Wing((wing, 0)), 2
+
+    def path_to_hallway(self, hallway: Hallway) -> Iterator[tuple[Location, int]]:
+        if self[0] + 1 > hallway.pos:
+            for pos in range(self[0] + 1, hallway.pos - 1, -1):
+                yield Hallway(pos), 1 if pos == 0 else 2
+        else:
+            for pos in range(self[0] + 2, hallway.pos + 1):
+                yield Hallway(pos), 1 if pos == 6 else 2
+
+
+Location = Hallway | Wing
 
 
 @dataclass(order=True)
-class PrioTurtles:
+class PrioTuple:
     cost: int
-    state: AmphipodHome = field(compare=False)
+    layout: Layout = field(compare=False)
 
 
-class AmphipodHome:
+class Layout:
     @staticmethod
-    def from_str(lines: Iterator[str]) -> AmphipodHome:
-        next(lines)
-        next(lines)
-        a: list[int | None] = []
-        b: list[int | None] = []
-        c: list[int | None] = []
-        d: list[int | None] = []
+    def from_str(lines: Iterator[str]) -> Layout:
+        next(lines)  # north wall
+        next(lines)  # hallway
 
-        occupants = "ABCD"
+        wing_a: list[Amphipod | None] = []
+        wing_b: list[Amphipod | None] = []
+        wing_c: list[Amphipod | None] = []
+        wing_d: list[Amphipod | None] = []
 
         finished = False
         while not finished:
             match next(lines)[3:10].split("#"):
-                case [a1, b1, c1, d1]:
-                    a.append(occupants.index(a1))
-                    b.append(occupants.index(b1))
-                    c.append(occupants.index(c1))
-                    d.append(occupants.index(d1))
-                case _:
+                case [a, b, c, d]:
+                    wing_a.append(Amphipod.from_str(a))
+                    wing_b.append(Amphipod.from_str(b))
+                    wing_c.append(Amphipod.from_str(c))
+                    wing_d.append(Amphipod.from_str(d))
+                case _:  # south wall
                     finished = True
 
-        hallway: list[int | None] = [None] * 7
+        hallway: list[Amphipod | None] = [None] * 7
+        return Layout([wing_a, wing_b, wing_c, wing_d, hallway])
 
-        return AmphipodHome([a, b, c, d, hallway])
-
-    def __init__(self, layout: list[list[int | None]]):
+    def __init__(self, layout: list[list[Amphipod | None]]):
         self._layout = layout
 
-        self._bits: int | None = None
+    def get(self, room: Location) -> Amphipod | None:
+        if isinstance(room, Hallway):
+            return self._layout[4][room]
+        else:
+            return self._layout[room.wing][room.pos]
 
-    @property
-    def max_pos(self) -> int:
-        return len(self._layout[0])
+    def all_moveable(self) -> Iterator[tuple[Location, Amphipod]]:
+        yield from self.all_in_hallways()
+        yield from self.all_moveable_in_wings()
 
-    @property
+    def all_moveable_in_wings(self) -> Iterator[tuple[Wing, Amphipod]]:
+        for wing in Amphipod.all():
+            for depth, occupant in enumerate(self._layout[wing]):
+                if occupant is not None:
+                    yield Wing((wing, depth)), occupant
+                    break
+
+    def all_in_hallways(self) -> Iterator[tuple[Hallway, Amphipod]]:
+        for pos, occupant in enumerate(self._layout[4]):
+            if occupant is not None:
+                yield Hallway(pos), occupant
+
+    def all_in_wing(self, wing: Amphipod) -> Iterator[tuple[Wing, Amphipod | None]]:
+        for depth, occupant in enumerate(self._layout[wing]):
+            yield Wing((wing, depth)), occupant
+
+    @cached_property
     def bits(self) -> int:
-        def add_bits(bits: int, lst: list[int | None]) -> int:
-            for item in lst:
-                if item is None:
+        def add_bits(bits: int, rooms: list[Amphipod | None]) -> int:
+            for occupant in rooms:
+                if occupant is None:
                     bits = (bits << 3) | 0x07
                 else:
-                    bits = (bits << 3) | item
+                    bits = (bits << 3) | occupant
             return bits
 
-        if self._bits is None:
-            bits = add_bits(0, self._layout[0])
-            bits = add_bits(bits, self._layout[1])
-            bits = add_bits(bits, self._layout[2])
-            bits = add_bits(bits, self._layout[3])
-            bits = add_bits(bits, self._layout[4])
-            self._bits = bits
-        return self._bits
+        return reduce(add_bits, self._layout, 0)
 
     def __eq__(self, other: object) -> bool:
-        if isinstance(other, AmphipodHome):
+        if isinstance(other, Layout):
             return self.bits == other.bits
         raise NotImplementedError
 
     def __hash__(self) -> int:
         return hash(self.bits)
 
-    def __iter__(self) -> Iterator[tuple[Location, int]]:
-        for wing, row in enumerate(self._layout):
-            for pos, occupant in enumerate(row):
-                if occupant is not None:
-                    yield (wing, pos), occupant
+    def __str__(self) -> str:
+        def item(occupant: Amphipod | None) -> str:
+            return "." if occupant is None else str(occupant)
 
-    def print(self) -> None:
-        def item(row: int, pos: int) -> str:
-            result = self[(row, pos)]
-            if result is None:
-                return "."
-            else:
-                return "ABCD"[result]
+        result = "#############\n#"
+        for pos, occupant in enumerate(self._layout[4]):
+            result += item(occupant)
+            if pos not in [0, 5, 6]:
+                result += " "
+        result += "#\n"
 
-        print("#############")
-        print(
-            "#{}{}.{}.{}.{}.{}{}#".format(
-                item(4, 0), item(4, 1),
-                item(4, 2), item(4, 3),
-                item(4, 4), item(4, 5),
-                item(4, 6)))
-        print("###{}#{}#{}#{}###".format(item(0, 0), item(1, 0), item(2, 0), item(3, 0)))
-        for row in range(1, self.max_pos):
-            print("  #{}#{}#{}#{}#".format(item(0, row), item(1, row), item(2, row), item(3, row)))
-        print("  #########")
+        first = True
+        for (_, a), (_, b), (_, c), (_, d) in zip(self.all_in_wing(Amphipod(0)),
+                                                  self.all_in_wing(Amphipod(1)),
+                                                  self.all_in_wing(Amphipod(2)),
+                                                  self.all_in_wing(Amphipod(3))):
+            result += "##" if first else "  "
+            result += f"#{item(a)}#{item(b)}#{item(c)}#{item(d)}#"
+            result += "##\n" if first else "  \n"
+            first = False
+        result += "  #########"
 
-    def __getitem__(self, room: Location) -> int | None:
-        if room[0] < 0 or room[0] > 4:
-            return None
-        return self._layout[room[0]][room[1]]
+        return result
 
-    def move(self, from_room: Location, to_room: Location) -> AmphipodHome:
-        occupant = self._layout[from_room[0]][from_room[1]]
-        if occupant is None or self._layout[to_room[0]][to_room[1]] is not None:
-            raise Exception
+    def move(self, from_room: Location, to_room: Location) -> Layout:
+        new_layout = [rooms.copy() for rooms in self._layout]
+        occupant = self.get(from_room)
+        new_layout[from_room.wing][from_room.pos] = None
+        new_layout[to_room.wing][to_room.pos] = occupant
 
-        new_layout = [wing.copy() for wing in self._layout]
-        new_layout[from_room[0]][from_room[1]] = None
-        new_layout[to_room[0]][to_room[1]] = occupant
+        return Layout(new_layout)
 
-        return AmphipodHome(new_layout)
-
-    @staticmethod
-    def is_hallway(room: Location) -> bool:
-        return room[0] == 4
-
-    @staticmethod
-    def is_sideroom(room: Location) -> bool:
-        return room[0] >= 0 and room[0] < 4
-
-    def is_bottom_sideroom(self, loc: Location) -> bool:
-        return loc[0] >= 0 and loc[0] < 4 and loc[1] == len(self._layout[loc[0]]) - 1
-
-    @staticmethod
-    def is_home(room: Location, occupant: int) -> bool:
-        return room[0] == occupant
-
-    def enter_home_at_pos(self, check_occupant: int) -> int | None:
-        wing = self._layout[check_occupant]
-        for occupant in wing:
-            if occupant is not None and occupant != check_occupant:
-                return None
-        for pos, occupant in enumerate(wing):
-            if occupant is not None:
-                if pos > 0:
-                    return pos - 1
-                else:
-                    return None
-        return len(wing) - 1
-
-    def wing_finished(self, row: int) -> bool:
-        for occupant in self._layout[row]:
-            if occupant != row:
-                return False
-        return True
+    def wing_finished(self, wing: Amphipod) -> bool:
+        return all(room.is_home(occupant) for room, occupant in self.all_in_wing(wing))
 
     def all_wings_finished(self) -> bool:
-        return all(self.wing_finished(row) for row in [A, B, C, D])
+        return all(self.wing_finished(wing) for wing in Amphipod.all())
 
-    def find_home(self, occupant: int, path: list[Location]) -> tuple[Location, int] | None:
-        for room in neighborhood[path[-1]]:
-            if room in path:
-                continue
-            if AmphipodHome.is_home(room, occupant):
-                pos = self.enter_home_at_pos(occupant)
-                if pos is not None:
-                    return (occupant, pos), len(path) + pos
-            if not AmphipodHome.is_sideroom(room):
-                if self[room] is None:
-                    result = self.find_home(occupant, path + [room])
-                    if result is not None:
-                        return result
-        return None
-
-    def steps_to_leave(self, room: Location) -> list[Location] | None:
-        for pos in range(room[1] - 1, -1, -1):
-            if self._layout[room[0]][pos] is not None:
+    # Only enter if there are only correct occupants
+    def may_enter_homewing_at(self, amphipod: Amphipod) -> Wing | None:
+        last_empty: Wing | None = None
+        for room, occupant in self.all_in_wing(amphipod):
+            if occupant is None:
+                last_empty = room
+            elif not room.is_home(occupant):
                 return None
-        return [(room[0], pos) for pos in range(room[1], -1, -1)]
+        return last_empty
 
-    def ampipod_finished(self, room: Location) -> bool:
-        return (AmphipodHome.is_sideroom(room)
-                and all(occupant == room[0] for occupant in self._layout[room[0]][room[1]:]))
+    def has_wrong_occupants(self, wing: Amphipod) -> bool:
+        return any(occupant is not None and not room.is_home(occupant)
+                   for room, occupant in self.all_in_wing(wing))
 
-    def find_hallways(self, room: Location) -> Iterator[list[Location]]:
-        def all_paths(path: list[Location]) -> Iterator[list[Location]]:
-            for neighbor in neighborhood[path[-1]]:
-                if neighbor not in path and not AmphipodHome.is_sideroom(neighbor):
-                    if self[neighbor] is None:
-                        newpath = path + [neighbor]
-                        if AmphipodHome.is_hallway(neighbor):
-                            yield newpath
-                        yield from all_paths(newpath)
+    def steps_to_home(self, from_room: Location, to_wing: Amphipod) -> int | None:
+        path_steps = 0
+        for room, steps in from_room.path_to_wing(to_wing):
+            if self.get(room) is not None:
+                return None
+            path_steps += steps
+        return path_steps
 
-        if AmphipodHome.is_sideroom(room):
-            steps = self.steps_to_leave(room)
-            if steps is not None:
-                yield from all_paths(steps)
-        else:
-            yield from all_paths([room])
+    def apply_finish_moves(self) -> tuple[Layout, int]:
+        for room, occupant in self.all_moveable():
+            final_room: Wing | None = None
+            start_steps = 0
 
-    @staticmethod
-    def weighted(occupant: int, moves: int) -> int:
-        return moves * 10 ** occupant
+            if isinstance(room, Hallway):
+                final_room = self.may_enter_homewing_at(occupant)
+            elif not room.is_home(occupant):
+                final_room = self.may_enter_homewing_at(occupant)
+                start_steps = room.pos
 
-    def possible_paths_for(self, start: Location, occupant: int) -> Iterator[tuple[Location, int]]:
-        if not AmphipodHome.is_hallway(start) and not self.ampipod_finished(start):
-            for path in self.find_hallways(start):
-                yield path[-1], AmphipodHome.weighted(occupant, len(path) - 1)
+            if final_room is None:
+                continue
 
-    def apply_finish_moves(self) -> tuple[AmphipodHome, int]:
-        for room, occupant in self:
-            if AmphipodHome.is_hallway(room):
-                result = self.find_home(occupant, [room])
-                if result is not None:
-                    next_state = self.move(room, result[0])
-                    exit_state, cost = next_state.apply_finish_moves()
-                    return exit_state, cost + self.weighted(occupant, result[1])
+            if (path_steps := self.steps_to_home(room, occupant)) is not None:
+                next_layout = self.move(room, final_room)
+                cost = occupant.weight * (start_steps + path_steps + final_room.pos)
+                final, finish_cost = next_layout.apply_finish_moves()
+                return final, cost + finish_cost
         return self, 0
 
-    def possible_paths(self) -> Iterator[tuple[AmphipodHome, int]]:
-        next_state, finish_costs = self.apply_finish_moves()
-        if finish_costs > 0:
-            yield next_state, finish_costs
-        else:
-            for room, occupant in self:
-                for next_room, move_cost in self.possible_paths_for(room, occupant):
-                    next_state = self.move(room, next_room)
-                    yield next_state, move_cost
+    def walk_into_hallway(self, from_room: Wing, to_room: Hallway,
+                          occupant: Amphipod) -> Iterator[tuple[Layout, int]]:
+        path_steps = from_room.pos
+        for hallway, steps in from_room.path_to_hallway(to_room):
+            if self.get(hallway) is None:
+                next_layout = self.move(from_room, hallway)
+                path_steps += steps
+                cost = occupant.weight * path_steps
+                next_layout, finish_cost = next_layout.apply_finish_moves()
+                yield next_layout, cost + finish_cost
+            else:
+                return
+
+    def possible_paths(self) -> Iterator[tuple[Layout, int]]:
+        for room, occupant in self.all_moveable_in_wings():
+            if self.has_wrong_occupants(room.wing):
+                yield from self.walk_into_hallway(room, Hallway(0), occupant)
+                yield from self.walk_into_hallway(room, Hallway(6), occupant)
 
     def find_path(self):
-        found: dict[AmphipodHome, int] = {self: 0}
-        queue: PriorityQueue[PrioTurtles] = PriorityQueue()
-        queue.put(PrioTurtles(0, self))
-        while queue:
+        found: dict[Layout, int] = {self: 0}
+        queue: PriorityQueue[PrioTuple] = PriorityQueue()
+        queue.put(PrioTuple(0, self))
+        while not queue.empty():
             current = queue.get()
-            if current.state.all_wings_finished():
+            if current.layout.all_wings_finished():
                 return current.cost
 
-            for next_state, move_cost in current.state.possible_paths():
-                next_cost = move_cost + current.cost
-                old_cost = found.get(next_state, sys.maxsize)
+            for next_layout, path_cost in current.layout.possible_paths():
+                next_cost = path_cost + current.cost
+                old_cost = found.get(next_layout, sys.maxsize)
                 if old_cost > next_cost:
-                    found[next_state] = next_cost
-                    queue.put(PrioTurtles(next_cost, next_state))
+                    found[next_layout] = next_cost
+                    queue.put(PrioTuple(next_cost, next_layout))
 
         raise Exception
